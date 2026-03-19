@@ -2326,7 +2326,7 @@
       }
 
       try {
-        const res = await fetch('http://localhost:3000/api/auth/me', {
+        const res = await fetch('/api/auth/me', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!res.ok) throw new Error("Invalid token");
@@ -2380,7 +2380,7 @@
       }
       
       try {
-        const res = await fetch('http://localhost:3000/api/payment/create-checkout-session', {
+        const res = await fetch('/api/payment/create-checkout-session', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -2554,7 +2554,7 @@
     });
 
     // API URL
-    const API_URL = 'http://localhost:3000/api/auth';
+    const API_URL = '/api/auth';
 
     // Handle Auth UI State
     function updateAuthState() {

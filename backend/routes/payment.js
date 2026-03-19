@@ -59,7 +59,7 @@ router.post('/create-checkout-session', authenticateToken, async (req, res) => {
     if (!USE_REAL_PAYMENT) {
         // MODE TEST : Simule un paiement Stripe réussi
         const mockSessionId = 'cs_test_' + Math.random().toString(36).substr(2, 9);
-        const successUrl = `http://localhost:3000/api/payment/success?session_id=${mockSessionId}&plan=${plan}&token=${token}`;
+        const successUrl = `https://yatom.onrender.com/api/payment/success?session_id=${mockSessionId}&plan=${plan}&token=${token}`;
         return res.json({ url: successUrl });
     }
 
@@ -81,8 +81,8 @@ router.post('/create-checkout-session', authenticateToken, async (req, res) => {
             }],
             mode: 'payment',
             // {CHECKOUT_SESSION_ID} est remplacé par Stripe automatiquement
-            success_url: `http://localhost:3000/api/payment/success?session_id={CHECKOUT_SESSION_ID}&plan=${plan}&token=${token}`,
-            cancel_url: `http://localhost:3000/index.html#pricing`,
+            success_url: `https://yatom.onrender.com/api/payment/success?session_id={CHECKOUT_SESSION_ID}&plan=${plan}&token=${token}`,
+            cancel_url: `https://yatom.onrender.com/index.html#pricing`,
         });
 
         res.json({ url: session.url });
