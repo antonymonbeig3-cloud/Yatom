@@ -1390,7 +1390,7 @@
           <li><span class="pf-icon">✓</span> <span data-i18n="pf_instant">Activation instantanée</span></li>
         </ul>
         <button class="price-btn btn-outline" onclick="handlePurchase('1h')" data-i18n="plan_btn_try" style="margin-bottom: 0.75rem;">Obtenir 1 heure (Carte)</button>
-        <button class="price-btn btn-outline" onclick="handlePayPal()" style="background: rgba(0, 112, 186, 0.1); border-color: rgba(0, 112, 186, 0.5); color: #4db8ff;">Payer via PayPal</button>
+        <button class="price-btn btn-outline" onclick="handlePayPal()" data-i18n="btn_paypal" style="background: rgba(0, 112, 186, 0.1); border-color: rgba(0, 112, 186, 0.5); color: #4db8ff;">Payer via PayPal</button>
       </div>
 
       <div class="pricing-card featured reveal">
@@ -1415,7 +1415,7 @@
           <li><span class="pf-icon">✓</span> <span data-i18n="pf_priority">Support prioritaire</span></li>
         </ul>
         <button class="price-btn btn-glow" onclick="handlePurchase('lifetime')" data-i18n="plan_btn_get" style="margin-bottom: 0.75rem;">Obtenir à Vie (Carte)</button>
-        <button class="price-btn btn-outline" onclick="handlePayPal()" style="background: rgba(0, 112, 186, 0.1); border-color: rgba(0, 112, 186, 0.5); color: #4db8ff;">Payer via PayPal</button>
+        <button class="price-btn btn-outline" onclick="handlePayPal()" data-i18n="btn_paypal" style="background: rgba(0, 112, 186, 0.1); border-color: rgba(0, 112, 186, 0.5); color: #4db8ff;">Payer via PayPal</button>
       </div>
 
       <div class="pricing-card reveal">
@@ -1436,7 +1436,7 @@
           <li><span class="pf-icon">✓</span> <span data-i18n="pf_custom_3">Support après la livraison</span></li>
         </ul>
         <button class="price-btn btn-outline" onclick="handlePurchase('plugin')" data-i18n="plan_btn_custom" style="margin-bottom: 0.75rem;">Commander (Carte)</button>
-        <button class="price-btn btn-outline" onclick="handlePayPal()" style="background: rgba(0, 112, 186, 0.1); border-color: rgba(0, 112, 186, 0.5); color: #4db8ff;">Commander via PayPal</button>
+        <button class="price-btn btn-outline" onclick="handlePayPal()" data-i18n="btn_paypal_custom" style="background: rgba(0, 112, 186, 0.1); border-color: rgba(0, 112, 186, 0.5); color: #4db8ff;">Commander via PayPal</button>
       </div>
     </div>
   </section>
@@ -1549,14 +1549,16 @@
         pf_all_features: "Toutes les fonctionnalités", pf_all_clients: "Tous les clients supportés",
         pf_stealth: "Mode furtif inclus", pf_instant: "Activation instantanée",
         pf_updates: "Mises à jour gratuites à vie", pf_priority: "Support prioritaire",
-        plan_btn_try: "Obtenir 1 heure", plan_btn_get: "Obtenir à Vie", popular_badge: "POPULAIRE",
+        plan_btn_try: "Obtenir 1 heure (Carte)", plan_btn_get: "Obtenir à Vie (Carte)", popular_badge: "POPULAIRE",
+        btn_paypal: "Payer via PayPal",
         plan3_name: "Plugin Minecraft sur mesure",
         plan3_desc: "Je crée n'importe quel plugin Minecraft sur demande.",
         plan3_period: "paiement unique",
         pf_custom_1: "Plugin configuré pour ton serveur",
         pf_custom_2: "Livraison selon tes besoins",
         pf_custom_3: "Support après la livraison",
-        plan_btn_custom_req: "Demander",
+        plan_btn_custom: "Commander (Carte)",
+        btn_paypal_custom: "Commander via PayPal",
         dl_overline: "Commencer", dl_title: "Télécharger Yatom", dl_desc: "Un clic. Domination instantanée.",
         dl_version: "⚡ v3.0 — Dernière Stable", dl_info: "Windows 10/11 • Léger • Portable",
         dl_btn: "Télécharger pour Windows", dl_virus: "🔒 Sans virus", dl_noinstall: "🚀 Aucune installation requise",
@@ -1645,14 +1647,16 @@
         pf_all_features: "All features included", pf_all_clients: "All clients supported",
         pf_stealth: "Stealth mode included", pf_instant: "Instant activation",
         pf_updates: "Free lifetime updates", pf_priority: "Priority support",
-        plan_btn_try: "Get 1 hour", plan_btn_get: "Get Lifetime", popular_badge: "POPULAR",
+        plan_btn_try: "Get 1 hour (Card)", plan_btn_get: "Get Lifetime (Card)", popular_badge: "POPULAR",
+        btn_paypal: "Pay with PayPal",
         plan3_name: "Custom Minecraft Plugin",
         plan3_desc: "I create any Minecraft plugin on request.",
         plan3_period: "one-time payment",
         pf_custom_1: "Plugin configured for your server",
         pf_custom_2: "Delivery based on your needs",
         pf_custom_3: "Support after delivery",
-        plan_btn_custom: "Request",
+        plan_btn_custom: "Order (Card)",
+        btn_paypal_custom: "Order with PayPal",
         dl_overline: "Get Started", dl_title: "Download Yatom", dl_desc: "One click. Instant domination.",
         dl_version: "⚡ v3.0 — Latest Stable", dl_info: "Windows 10/11 • Lightweight • Portable",
         dl_btn: "Download for Windows", dl_virus: "🔒 Virus-free", dl_noinstall: "🚀 No install needed",
@@ -1675,6 +1679,7 @@
         pay_success_plugin: "Payment successful! 🎉 You have received your receipt by email. Please open a ticket on our Discord or email Yatomexe@gmail.com detailing exactly what you need for your custom plugin."
       },
       it: {
+        nav_buy: "Acquista", hero_btn_buy: "Acquista Yatom",
         nav_features: "Funzionalità", nav_how: "Come Funziona", nav_pricing: "Prezzi", nav_compat: "Compatibilità", nav_download: "Scarica",
         currency_usd_label: "USD ($)", currency_eur_label: "EUR (€)",
         nav_about: "Info",
@@ -1721,14 +1726,16 @@
         pf_all_features: "Tutte le funzionalità", pf_all_clients: "Tutti i client supportati",
         pf_stealth: "Modalità stealth inclusa", pf_instant: "Attivazione istantanea",
         pf_updates: "Aggiornamenti gratuiti a vita", pf_priority: "Supporto prioritario",
-        plan_btn_try: "Provare", plan_btn_get: "Ottieni a Vita", popular_badge: "POPOLARE",
+        plan_btn_try: "Ottieni 1 ora (Carta)", plan_btn_get: "Ottieni a Vita (Carta)", popular_badge: "POPOLARE",
+        btn_paypal: "Paga con PayPal",
         plan3_name: "Plugin Minecraft su Misura",
         plan3_desc: "Creo qualsiasi plugin Minecraft su richiesta.",
         plan3_period: "pagamento unico",
         pf_custom_1: "Plugin configurato per il tuo server",
         pf_custom_2: "Consegna in base alle tue esigenze",
         pf_custom_3: "Supporto dopo la consegna",
-        plan_btn_custom: "Richiedi",
+        plan_btn_custom: "Ordina (Carta)",
+        btn_paypal_custom: "Ordina con PayPal",
         dl_overline: "Inizia", dl_title: "Scarica Yatom", dl_desc: "Un click. Dominio istantaneo.",
         dl_version: "⚡ v3.0 — Ultima Stabile", dl_info: "Windows 10/11 • Leggero • Portatile",
         dl_btn: "Scarica per Windows", dl_virus: "🔒 Senza virus", dl_noinstall: "🚀 Nessuna installazione",
@@ -1738,9 +1745,13 @@
         lic_verifying: "Verifica...", lic_valid: "✓ Chiave di licenza validata con successo!",
         lic_invalid: "✕ Formato chiave non valido. Atteso: YATOM-XXXX-...",
         dl_preparing: "Preparazione...", dl_ready: "Pronto!",
+        support_new_msg: "Hai comprato Yatom, un plugin o hai domande?<br>Non esitare a contattarmi via e-mail a <strong style='color: #a855f7;'>Yatomexe@gmail.com</strong><br>o unisciti al nostro Discord.",
+        pay_success: "Pagamento completato! 🎉 Hai appena ricevuto un'e-mail con i dettagli del tuo ordine. Unisciti al nostro Discord (link sul sito) e apri un ticket con questa ricevuta per ottenere la tua Licenza.",
+        pay_success_plugin: "Pagamento completato! 🎉 Apri un ticket sul nostro Discord o invia un'e-mail a Yatomexe@gmail.com con la tua ricevuta per il tuo plugin."
         footer_copy: "© 2026 Yatom. Tutti i diritti riservati."
       },
       es: {
+        nav_buy: "Comprar", hero_btn_buy: "Comprar Yatom",
         nav_features: "Características", nav_how: "Cómo Funciona", nav_pricing: "Precios", nav_compat: "Compatibilidad", nav_download: "Descargar",
         currency_usd_label: "USD ($)", currency_eur_label: "EUR (€)",
         nav_about: "Acerca de",
@@ -1787,14 +1798,16 @@
         pf_all_features: "Todas las características", pf_all_clients: "Todos los clientes soportados",
         pf_stealth: "Modo sigiloso incluido", pf_instant: "Activación instantánea",
         pf_updates: "Actualizaciones gratis de por vida", pf_priority: "Soporte prioritario",
-        plan_btn_try: "Probar", plan_btn_get: "Obtener de por Vida", popular_badge: "POPULAR",
+        plan_btn_try: "Obtener 1 hora (Tarjeta)", plan_btn_get: "Obtener de por Vida (Tarjeta)", popular_badge: "POPULAR",
+        btn_paypal: "Pagar con PayPal",
         plan3_name: "Plugin de Minecraft a Medida",
         plan3_desc: "Creo cualquier plugin de Minecraft bajo pedido.",
         plan3_period: "pago único",
         pf_custom_1: "Plugin configurado para tu servidor",
         pf_custom_2: "Entrega según tus necesidades",
         pf_custom_3: "Soporte después de la entrega",
-        plan_btn_custom: "Solicitar",
+        plan_btn_custom: "Pedir (Tarjeta)",
+        btn_paypal_custom: "Pedir con PayPal",
         dl_overline: "Empezar", dl_title: "Descargar Yatom", dl_desc: "Un click. Dominación instantánea.",
         dl_version: "⚡ v3.0 — Última Estable", dl_info: "Windows 10/11 • Ligero • Portátil",
         dl_btn: "Descargar para Windows", dl_virus: "🔒 Sin virus", dl_noinstall: "🚀 Sin instalación",
@@ -1804,6 +1817,9 @@
         lic_verifying: "Verificando...", lic_valid: "✓ ¡Clave de licencia validada con éxito!",
         lic_invalid: "✕ Formato de clave inválido. Esperado: YATOM-XXXX-...",
         dl_preparing: "Preparando...", dl_ready: "¡Listo!",
+        support_new_msg: "¿Compraste Yatom, un plugin o tienes alguna pregunta?<br>No dudes en contactarme por correo a <strong style='color: #a855f7;'>Yatomexe@gmail.com</strong><br>o únete a nuestro Discord.",
+        pay_success: "¡Pago exitoso! 🎉 Acabas de recibir un correo con los detalles de tu pedido. Únete a nuestro Discord y abre un ticket con este recibo para reclamar tu Licencia.",
+        pay_success_plugin: "¡Pago exitoso! 🎉 Abre un ticket en nuestro Discord o envía un correo a Yatomexe@gmail.com con tu recibo para tu plugin personalizado."
         footer_copy: "© 2026 Yatom. Todos los derechos reservados."
       },
       pt: {
@@ -1860,7 +1876,8 @@
         pf_custom_1: "Plugin configurado para o seu servidor",
         pf_custom_2: "Entrega de acordo com as suas necessidades",
         pf_custom_3: "Suporte após a entrega",
-        plan_btn_custom: "Solicitar",
+        plan_btn_custom: "Pedir (Cartão)",
+        btn_paypal_custom: "Pedir com PayPal",
         dl_overline: "Começar", dl_title: "Baixar Yatom", dl_desc: "Um clique. Dominação instantânea.",
         dl_version: "⚡ v3.0 — Última Estável", dl_info: "Windows 10/11 • Leve • Portátil",
         dl_btn: "Baixar para Windows", dl_virus: "🔒 Sem vírus", dl_noinstall: "🚀 Sem instalação",
@@ -1873,6 +1890,7 @@
         footer_copy: "© 2026 Yatom. Todos os direitos reservados."
       },
       ar: {
+        nav_buy: "شراء", hero_btn_buy: "شراء Yatom",
         nav_features: "الميزات", nav_how: "كيف يعمل", nav_pricing: "الأسعار", nav_compat: "التوافق", nav_download: "تحميل",
         currency_usd_label: "دولار ($)", currency_eur_label: "يورو (€)",
         nav_about: "من أنا",
@@ -1919,14 +1937,16 @@
         pf_all_features: "جميع الميزات", pf_all_clients: "جميع العملاء مدعومون",
         pf_stealth: "الوضع المتخفي مشمول", pf_instant: "تفعيل فوري",
         pf_updates: "تحديثات مجانية مدى الحياة", pf_priority: "دعم ذو أولوية",
-        plan_btn_try: "تجربة", plan_btn_get: "احصل مدى الحياة", popular_badge: "الأكثر شعبية",
+        plan_btn_try: "احصل على ساعة واحدة (بطاقة)", plan_btn_get: "احصل مدى الحياة (بطاقة)", popular_badge: "الأكثر شعبية",
+        btn_paypal: "الدفع عبر PayPal",
         plan3_name: "إضافة Minecraft مخصصة",
         plan3_desc: "أصنع أي إضافة لـ Minecraft عند الطلب.",
         plan3_period: "دفعة واحدة",
         pf_custom_1: "إضافة مهيأة لخادمك",
         pf_custom_2: "التسليم حسب احتياجاتك",
         pf_custom_3: "دعم بعد التسليم",
-        plan_btn_custom: "اطلب",
+        plan_btn_custom: "اطلب (بطاقة)",
+        btn_paypal_custom: "اطلب عبر PayPal",
         dl_overline: "ابدأ", dl_title: "تحميل Yatom", dl_desc: "نقرة واحدة. سيطرة فورية.",
         dl_version: "⚡ v3.0 — آخر إصدار مستقر", dl_info: "Windows 10/11 • خفيف • محمول",
         dl_btn: "تحميل لويندوز", dl_virus: "🔒 خالٍ من الفيروسات", dl_noinstall: "🚀 لا حاجة للتثبيت",
@@ -1936,6 +1956,9 @@
         lic_verifying: "جارٍ التحقق...", lic_valid: "✓ تم التحقق من مفتاح الترخيص بنجاح!",
         lic_invalid: "✕ تنسيق المفتاح غير صالح. المتوقع: YATOM-XXXX-...",
         dl_preparing: "جارٍ التحضير...", dl_ready: "!جاهز",
+        support_new_msg: "هل اشتريت Yatom أو إضافة أو لديك أي أسئلة؟<br>لا تتردد في مراسلتي عبر البريد الإلكتروني على <strong style='color: #a855f7;'>Yatomexe@gmail.com</strong><br>أو انضم إلى Discord الخاص بنا.",
+        pay_success: "تم الدفع بنجاح! 🎉 لقد تلقيت للتو بريدًا إلكترونيًا بتفاصيل طلبك. يرجى الانضمام إلى الديسكورد الخاص بنا وفتح تذكرة بهذا الإيصال للمطالبة بترخيصك وتنزيل البرنامج.",
+        pay_success_plugin: "تم الدفع بنجاح! 🎉 يرجى فتح تذكرة على الديسكورد الخاص بنا أو إرسال بريد إلكتروني للحصول على إضافتك المخصصة."
         footer_copy: "© 2026 Yatom. جميع الحقوق محفوظة."
       }
     };
