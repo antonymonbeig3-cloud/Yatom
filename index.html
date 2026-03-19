@@ -1374,7 +1374,8 @@
           <li><span class="pf-icon">✓</span> <span data-i18n="pf_stealth">Mode furtif inclus</span></li>
           <li><span class="pf-icon">✓</span> <span data-i18n="pf_instant">Activation instantanée</span></li>
         </ul>
-        <button class="price-btn btn-outline" onclick="handlePurchase('1h')" data-i18n="plan_btn_try">Obtenir 1 heure</button>
+        <button class="price-btn btn-outline" onclick="handlePurchase('1h')" data-i18n="plan_btn_try" style="margin-bottom: 0.75rem;">Obtenir 1 heure (Carte)</button>
+        <button class="price-btn btn-outline" onclick="handlePayPal()" style="background: rgba(0, 112, 186, 0.1); border-color: rgba(0, 112, 186, 0.5); color: #4db8ff;">Payer via PayPal</button>
       </div>
 
       <div class="pricing-card featured reveal">
@@ -1398,7 +1399,8 @@
           <li><span class="pf-icon">✓</span> <span data-i18n="pf_updates">Mises à jour gratuites à vie</span></li>
           <li><span class="pf-icon">✓</span> <span data-i18n="pf_priority">Support prioritaire</span></li>
         </ul>
-        <button class="price-btn btn-glow" onclick="handlePurchase('lifetime')" data-i18n="plan_btn_get">Obtenir à Vie</button>
+        <button class="price-btn btn-glow" onclick="handlePurchase('lifetime')" data-i18n="plan_btn_get" style="margin-bottom: 0.75rem;">Obtenir à Vie (Carte)</button>
+        <button class="price-btn btn-outline" onclick="handlePayPal()" style="background: rgba(0, 112, 186, 0.1); border-color: rgba(0, 112, 186, 0.5); color: #4db8ff;">Payer via PayPal</button>
       </div>
 
       <div class="pricing-card reveal">
@@ -1418,7 +1420,8 @@
           <li><span class="pf-icon">✓</span> <span data-i18n="pf_custom_2">Livraison selon tes besoins</span></li>
           <li><span class="pf-icon">✓</span> <span data-i18n="pf_custom_3">Support après la livraison</span></li>
         </ul>
-        <button class="price-btn btn-outline" onclick="handlePurchase('plugin')" data-i18n="plan_btn_custom">Demander</button>
+        <button class="price-btn btn-outline" onclick="handlePurchase('plugin')" data-i18n="plan_btn_custom" style="margin-bottom: 0.75rem;">Commander (Carte)</button>
+        <button class="price-btn btn-outline" onclick="handlePayPal()" style="background: rgba(0, 112, 186, 0.1); border-color: rgba(0, 112, 186, 0.5); color: #4db8ff;">Commander via PayPal</button>
       </div>
     </div>
   </section>
@@ -2384,6 +2387,10 @@
       }
     }
 
+    function handlePayPal() {
+      alert("Pour les paiements via PayPal, veuillez rejoindre notre serveur Discord et ouvrir un Ticket. Nous traiterons votre demande manuellement !");
+      window.open("https://discord.gg/cj4nFhGrbV", "_blank");
+    }
 
     // ─── SMOOTH SCROLL ───
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
