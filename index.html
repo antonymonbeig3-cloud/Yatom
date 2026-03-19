@@ -986,6 +986,16 @@
     .auth-msg { text-align: center; font-size: 0.85rem; min-height: 1.2rem; }
     .auth-msg.error { color: #ef4444; }
     .auth-msg.success { color: #22c55e; }
+    .success-banner {
+      position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+      background: rgba(0, 200, 83, 0.15); border: 1px solid rgba(0, 200, 83, 0.5);
+      color: #fff; padding: 15px 20px; border-radius: 10px; z-index: 9999;
+      display: flex; align-items: center; justify-content: space-between; gap: 20px;
+      box-shadow: 0 4px 15px rgba(0, 200, 83, 0.3); backdrop-filter: blur(10px);
+      max-width: 90%; width: 600px;
+      animation: slideDownBanner 0.5s ease forwards;
+    }
+    @keyframes slideDownBanner { from { top: -100px; opacity: 0; } to { top: 80px; opacity: 1; } }
   </style>
 </head>
 <body>
@@ -1032,6 +1042,11 @@
     </div>
     <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">☰</button>
   </nav>
+
+  <div id="paymentSuccessBanner" class="success-banner" style="display:none;">
+    <span id="paymentSuccessText"></span>
+    <button onclick="document.getElementById('paymentSuccessBanner').style.display='none'" style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer; padding:0; margin-left: 10px;">&times;</button>
+  </div>
 
   <!-- HERO -->
   <section class="hero" id="hero">
@@ -1605,7 +1620,9 @@
         support_title: "Besoin d'aide ?", support_desc: "Rejoins notre communauté Discord ou envoie-nous un message directement.",
         support_discord: "Rejoindre le Discord", support_or: "Ou envoyez un message",
         support_ph_email: "Votre adresse e-mail", support_ph_msg: "Comment pouvons-nous vous aider ?",
-        support_send: "Envoyer le message"
+        support_send: "Envoyer le message",
+        pay_success: "Paiement réussi ! 🎉 Vous venez de recevoir un e-mail avec les informations de votre commande (ça peut prendre quelques minutes). Veuillez rejoindre notre Discord (lien sur le site) et ouvrir un ticket avec ce reçu pour réclamer votre Licence et télécharger le logiciel.",
+        pay_success_plugin: "Paiement réussi ! 🎉 Vous venez de recevoir votre reçu par e-mail. Merci d'ouvrir un ticket sur notre Discord (lien en haut) OU d'envoyer un mail à Yatomexe@gmail.com en détaillant ce que vous souhaitez pour votre plugin."
       },
       en: {
         nav_features: "Features", nav_how: "How It Works", nav_pricing: "Pricing", nav_compat: "Compatibility", nav_download: "Download",
@@ -1699,7 +1716,9 @@
         support_title: "Need help?", support_desc: "Join our Discord community or send us a message directly.",
         support_discord: "Join Discord", support_or: "Or send a message",
         support_ph_email: "Your email address", support_ph_msg: "How can we help you?",
-        support_send: "Send Message"
+        support_send: "Send Message",
+        pay_success: "Payment successful! 🎉 You have just received an email with your order details (it may take a few minutes). Please join our Discord (link on the site) and open a ticket with this receipt to claim your License and download the software.",
+        pay_success_plugin: "Payment successful! 🎉 You have received your receipt by email. Please open a ticket on our Discord or email Yatomexe@gmail.com detailing exactly what you need for your custom plugin."
       },
       it: {
         nav_features: "Funzionalità", nav_how: "Come Funziona", nav_pricing: "Prezzi", nav_compat: "Compatibilità", nav_download: "Scarica",
@@ -2339,11 +2358,16 @@
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('payment') === 'success') {
         const plan = urlParams.get('plan');
+        const banner = document.getElementById('paymentSuccessBanner');
+        const textSpan = document.getElementById('paymentSuccessText');
+        const langObj = translations[currentLang] || translations['en'];
+        
         if (plan === 'plugin') {
-          alert("Paiement réussi ! 🎉\n\nMerci d'ouvrir un ticket sur notre Discord (lien en haut) OU d'envoyer un mail à Yatomexe@gmail.com en détaillant ÉNORMÉMENT ce que vous souhaitez pour votre plugin sur mesure.");
+          textSpan.innerHTML = langObj.pay_success_plugin || translations['en'].pay_success_plugin;
         } else {
-          alert("Paiement réussi ! 🎉\n\nVeuillez rejoindre notre Discord (lien dans Support) et ouvrir un ticket avec votre numéro/reçu Stripe pour réclamer votre Licence et télécharger le logiciel.");
+          textSpan.innerHTML = langObj.pay_success || translations['en'].pay_success;
         }
+        banner.style.display = 'flex';
         // Clean url
         window.history.replaceState({}, document.title, window.location.pathname);
       }
