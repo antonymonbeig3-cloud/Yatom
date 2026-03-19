@@ -1962,8 +1962,8 @@
 
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.dataset.i18n;
-        if (strings[key]) el.textContent = strings[key];
-        else if (T.en && T.en[key]) el.textContent = T.en[key]; // fallback en cas de traduction manquante
+        if (strings[key]) el.innerHTML = strings[key];
+        else if (T.en && T.en[key]) el.innerHTML = T.en[key]; // fallback en cas de traduction manquante
       });
 
       document.getElementById('langFlag').textContent = langMeta[lang].flag;
