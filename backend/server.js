@@ -1,30 +1,24 @@
 const express = require('express');
 const cors = require('cors');
-const db = require('./db/database');
-const authRoutes = require('./routes/auth');
-const paymentRoutes = require('./routes/payment');
-const supportRoutes = require('./routes/support');
 const path = require('path');
+require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../'))); // Serves index.html remotely
+
+// Servir les fichiers statiques du dossier parent (le site web frontend)
+app.use(express.static(path.join(__dirname, '../')));
 
 // Routes
-app.use('/api/auth', authRoutes);
+const paymentRoutes = require('./routes/payment');
+const supportRoutes = require('./routes/support');
+
 app.use('/api/payment', paymentRoutes);
 app.use('/api/support', supportRoutes);
 
-// Simple health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok' });
-});
-
-// Start server
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
