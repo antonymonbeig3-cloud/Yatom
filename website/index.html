@@ -1,0 +1,2410 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⚡ Yatom — Utilitaire Minecraft Intelligent</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-primary: #050510;
+      --bg-secondary: #0a0a1a;
+      --bg-card: rgba(15, 15, 35, 0.6);
+      --accent: #7c3aed;
+      --accent-light: #a78bfa;
+      --accent-glow: rgba(124, 58, 237, 0.4);
+      --cyan: #06b6d4;
+      --cyan-glow: rgba(6, 182, 212, 0.3);
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border: rgba(148, 163, 184, 0.08);
+      --glass: rgba(255, 255, 255, 0.03);
+      --gold: #f59e0b;
+      --gold-glow: rgba(245, 158, 11, 0.3);
+    }
+
+    html { scroll-behavior: smooth; scrollbar-width: thin; scrollbar-color: var(--accent) var(--bg-primary); }
+    html::-webkit-scrollbar { width: 6px; }
+    html::-webkit-scrollbar-track { background: var(--bg-primary); }
+    html::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    html[dir="rtl"] body { direction: rtl; text-align: right; }
+    html[dir="rtl"] .nav-links { flex-direction: row-reverse; }
+    html[dir="rtl"] .hero-buttons { flex-direction: row-reverse; }
+    html[dir="rtl"] .check-list li { flex-direction: row-reverse; }
+    html[dir="rtl"] .feature-card { text-align: right; }
+    html[dir="rtl"] .compat-item { flex-direction: row-reverse; }
+    html[dir="rtl"] .footer-inner { flex-direction: row-reverse; }
+    html[dir="rtl"] .footer-links { flex-direction: row-reverse; }
+    html[dir="rtl"] .license-input-group { flex-direction: row-reverse; }
+    html[dir="rtl"] .download-info { flex-direction: row-reverse; }
+    html[dir="rtl"] .btn { flex-direction: row-reverse; }
+
+    #three-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* NAV */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      backdrop-filter: blur(20px);
+      background: rgba(5, 5, 16, 0.7);
+      border-bottom: 1px solid var(--border);
+      transition: all 0.3s ease;
+    }
+    .nav.scrolled { background: rgba(5, 5, 16, 0.95); box-shadow: 0 4px 30px rgba(0,0,0,0.3); }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.5rem;
+      font-weight: 800;
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+    .nav-logo .bolt { color: var(--accent-light); font-size: 1.8rem; filter: drop-shadow(0 0 8px var(--accent-glow)); }
+    .nav-logo span { background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-light) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+    .nav-right { display: flex; align-items: center; gap: 1.5rem; }
+
+    .nav-links { display: flex; gap: 2rem; align-items: center; }
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.3s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px; left: 0;
+      width: 0; height: 2px;
+      background: var(--accent);
+      transition: width 0.3s;
+    }
+    .nav-links a:hover { color: var(--text-primary); }
+    .nav-links a:hover::after { width: 100%; }
+
+    .nav-cta {
+      padding: 0.5rem 1.5rem;
+      background: linear-gradient(135deg, var(--accent), #9333ea);
+      color: white !important;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s !important;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+    .nav-cta::after { display: none !important; }
+    .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 0 30px var(--accent-glow); }
+
+    /* LANG SWITCHER */
+    .lang-switcher {
+      position: relative;
+    }
+    .lang-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 0.8rem;
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: inherit;
+      backdrop-filter: blur(10px);
+    }
+    .lang-btn:hover { border-color: var(--accent); background: rgba(255,255,255,0.06); }
+    .lang-btn .flag { font-size: 1.1rem; }
+    .lang-btn .chevron { font-size: 0.65rem; transition: transform 0.3s; }
+    .lang-btn.open .chevron { transform: rotate(180deg); }
+
+    .lang-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: rgba(10, 10, 30, 0.95);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      backdrop-filter: blur(20px);
+      overflow: hidden;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: all 0.3s ease;
+      min-width: 180px;
+      z-index: 200;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    }
+    .lang-dropdown.open { opacity: 1; visibility: visible; transform: translateY(0); }
+
+    .lang-option {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.7rem 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      border: none;
+      background: none;
+      width: 100%;
+      font-family: inherit;
+      text-align: left;
+    }
+    html[dir="rtl"] .lang-option { text-align: right; flex-direction: row-reverse; }
+    html[dir="rtl"] .lang-dropdown { right: auto; left: 0; }
+    .lang-option:hover { background: rgba(124, 58, 237, 0.15); color: var(--text-primary); }
+    .lang-option.active { color: var(--accent-light); background: rgba(124, 58, 237, 0.1); }
+    .lang-option .flag { font-size: 1.2rem; }
+
+    .mobile-toggle { display: none; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8rem 2rem 4rem;
+    }
+
+    .hero-content { max-width: 800px; }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 1.2rem;
+      border-radius: 50px;
+      border: 1px solid var(--border);
+      background: var(--glass);
+      backdrop-filter: blur(10px);
+      font-size: 0.85rem;
+      color: var(--accent-light);
+      margin-bottom: 2rem;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    .hero-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; animation: pulse-dot 2s infinite; }
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    .hero h1 {
+      font-size: clamp(3rem, 7vw, 5.5rem);
+      font-weight: 900;
+      line-height: 1.05;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    .hero h1 .gradient-text {
+      background: linear-gradient(135deg, var(--accent-light) 0%, var(--cyan) 50%, var(--accent-light) 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradient-shift 4s ease infinite;
+    }
+    @keyframes gradient-shift { 0% { background-position: 0% center; } 50% { background-position: 100% center; } 100% { background-position: 0% center; } }
+
+    .hero-description {
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto 3rem;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.9rem 2rem;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #9333ea);
+      color: white;
+      box-shadow: 0 0 30px var(--accent-glow), 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .btn-primary:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 0 50px var(--accent-glow), 0 12px 40px rgba(0,0,0,0.4); }
+
+    .btn-secondary {
+      background: var(--glass);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.08); transform: translateY(-3px); border-color: var(--accent); }
+
+    .hero-stats {
+      display: flex;
+      gap: 3rem;
+      justify-content: center;
+      margin-top: 4rem;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    .hero-stat { text-align: center; }
+    .hero-stat .number {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent-light), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-stat .label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+    .hero-orb {
+      position: absolute;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+      filter: blur(80px);
+      opacity: 0.3;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      animation: orb-float 8s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes orb-float {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); }
+      50% { transform: translate(-50%, -55%) scale(1.1); }
+    }
+
+    section { position: relative; z-index: 1; padding: 6rem 2rem; }
+
+    .section-header {
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 4rem;
+    }
+    .section-header .overline {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: var(--accent-light);
+      margin-bottom: 1rem;
+    }
+    .section-header h2 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      margin-bottom: 1rem;
+    }
+    .section-header p { color: var(--text-secondary); font-size: 1.1rem; }
+
+    /* FEATURES */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .feature-card {
+      position: relative;
+      padding: 2rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      transition: all 0.4s ease;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      padding: 1px;
+      background: linear-gradient(135deg, transparent 0%, var(--accent-glow) 50%, transparent 100%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-card:hover { transform: translateY(-5px); background: rgba(15, 15, 35, 0.8); }
+
+    .feature-card .icon-wrapper {
+      width: 56px; height: 56px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .feature-card .icon-wrapper.purple { background: rgba(124, 58, 237, 0.15); }
+    .feature-card .icon-wrapper.cyan { background: rgba(6, 182, 212, 0.15); }
+    .feature-card .icon-wrapper.green { background: rgba(34, 197, 94, 0.15); }
+    .feature-card .icon-wrapper.orange { background: rgba(249, 115, 22, 0.15); }
+    .feature-card .icon-wrapper.pink { background: rgba(236, 72, 153, 0.15); }
+    .feature-card .icon-wrapper.blue { background: rgba(59, 130, 246, 0.15); }
+
+    .feature-card h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .feature-card p { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; }
+
+    .feature-card .tag {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .tag-active { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+    .tag-soon { background: rgba(249, 115, 22, 0.15); color: #f97316; }
+
+    /* SHOWCASE */
+    .showcase {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .showcase-visual {
+      position: relative;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      backdrop-filter: blur(10px);
+    }
+    .showcase-visual .terminal-bar {
+      display: flex;
+      gap: 8px;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .showcase-visual .terminal-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .showcase-visual .terminal-dot:nth-child(1) { background: #ef4444; }
+    .showcase-visual .terminal-dot:nth-child(2) { background: #f59e0b; }
+    .showcase-visual .terminal-dot:nth-child(3) { background: #22c55e; }
+
+    .code-block {
+      padding: 1.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.8;
+      overflow-x: auto;
+    }
+    .code-block .line { display: block; }
+    .code-block .comment { color: var(--text-muted); }
+    .code-block .keyword { color: var(--accent-light); }
+    .code-block .string { color: #22c55e; }
+    .code-block .func { color: var(--cyan); }
+    .code-block .number { color: #f59e0b; }
+    .code-block .bracket { color: var(--text-secondary); }
+
+    .showcase-text h3 { font-size: 2rem; font-weight: 800; margin-bottom: 1rem; }
+    .showcase-text p { color: var(--text-secondary); font-size: 1.05rem; margin-bottom: 2rem; line-height: 1.8; }
+    .showcase-text .check-list { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
+    .showcase-text .check-list li { display: flex; align-items: center; gap: 0.75rem; color: var(--text-secondary); font-size: 0.95rem; }
+    .showcase-text .check-list li .check-icon {
+      width: 24px; height: 24px;
+      border-radius: 6px;
+      background: rgba(34, 197, 94, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #22c55e;
+      font-size: 0.8rem;
+      flex-shrink: 0;
+    }
+
+    /* COMPATIBILITY */
+    .compat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .compat-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.2rem 1.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+    .compat-item:hover { border-color: var(--accent); transform: translateY(-3px); }
+    .compat-item .compat-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      background: rgba(124, 58, 237, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+    .compat-item .compat-name { font-weight: 600; font-size: 0.95rem; }
+
+    /* PRICING */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .pricing-card {
+      position: relative;
+      padding: 2.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      backdrop-filter: blur(10px);
+      text-align: center;
+      transition: all 0.4s ease;
+      overflow: hidden;
+    }
+    .pricing-card:hover { transform: translateY(-5px); }
+    .pricing-card.featured {
+      border-color: var(--accent);
+      box-shadow: 0 0 40px var(--accent-glow);
+    }
+    .pricing-card.featured::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--cyan), var(--accent));
+      background-size: 200% auto;
+      animation: gradient-shift 3s ease infinite;
+    }
+
+    .pricing-card .popular-badge {
+      position: absolute;
+      top: 1rem; right: 1rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 50px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      background: linear-gradient(135deg, var(--accent), #9333ea);
+      color: white;
+    }
+    html[dir="rtl"] .pricing-card .popular-badge { right: auto; left: 1rem; }
+
+    .pricing-card .pricing-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    .pricing-card h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .pricing-card .pricing-desc {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+    .pricing-card .price {
+      font-size: 3rem;
+      font-weight: 900;
+      margin-bottom: 0.25rem;
+    }
+    .pricing-card .price .currency {
+      font-size: 1.5rem;
+      font-weight: 700;
+      vertical-align: super;
+    }
+    .pricing-card .price-period {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+    }
+
+    .pricing-card .price-secondary {
+      margin-top: 0.35rem;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+    .pricing-card .price-secondary .price-secondary-prefix {
+      opacity: 0.9;
+      margin-right: 0.25rem;
+      font-weight: 800;
+    }
+    .pricing-card .price-secondary .money-secondary-currency {
+      font-size: 1.05rem;
+      font-weight: 900;
+    }
+    .pricing-card .pricing-features {
+      list-style: none;
+      text-align: left;
+      margin-bottom: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    html[dir="rtl"] .pricing-card .pricing-features { text-align: right; }
+    .pricing-card .pricing-features li {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+    html[dir="rtl"] .pricing-card .pricing-features li { flex-direction: row-reverse; }
+    .pricing-card .pricing-features li .pf-icon {
+      color: #22c55e;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .price-note {
+      margin-top: 0.9rem;
+      color: var(--text-muted);
+      font-size: 1rem;
+      max-width: 720px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* REVIEWS */
+    .reviews-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.25rem;
+      padding: 0 0.25rem;
+    }
+    .review-card {
+      padding: 1.6rem 1.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .review-card:hover { transform: translateY(-4px); border-color: var(--accent); }
+    .review-stars {
+      color: #fbbf24;
+      font-size: 1rem;
+      letter-spacing: 1px;
+      margin-bottom: 0.75rem;
+      white-space: nowrap;
+    }
+    .review-text {
+      color: var(--text-secondary);
+      font-size: 0.98rem;
+      line-height: 1.75;
+      margin-bottom: 1rem;
+      min-height: 4.2em;
+    }
+    .review-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .review-badge {
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(124, 58, 237, 0.08);
+      color: var(--accent-light);
+      font-weight: 800;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+
+    .pricing-card .price-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      padding: 0.9rem 2rem;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      transition: all 0.3s;
+    }
+    .pricing-card .price-btn.btn-outline {
+      background: transparent;
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+    .pricing-card .price-btn.btn-outline:hover { border-color: var(--accent); background: rgba(124, 58, 237, 0.1); }
+    .pricing-card .price-btn.btn-glow {
+      background: linear-gradient(135deg, var(--accent), #9333ea);
+      color: white;
+      box-shadow: 0 0 25px var(--accent-glow);
+    }
+    .pricing-card .price-btn.btn-glow:hover { transform: translateY(-2px); box-shadow: 0 0 40px var(--accent-glow); }
+
+    /* CURRENCY TOGGLE */
+    .currency-toggle {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      align-items: center;
+      margin: 1rem auto 0;
+      padding: 0.25rem;
+      max-width: 720px;
+    }
+
+    .nav-currency-toggle {
+      margin: 0;
+      padding: 0;
+      max-width: none;
+    }
+    .nav-currency-toggle .currency-btn {
+      padding: 0.45rem 0.85rem;
+      font-size: 0.85rem;
+    }
+    .currency-btn {
+      padding: 0.6rem 1rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-secondary);
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(10px);
+      font-family: inherit;
+    }
+    .currency-btn:hover { border-color: var(--accent); color: var(--text-primary); transform: translateY(-1px); }
+    .currency-btn.active {
+      border-color: var(--accent);
+      background: rgba(124, 58, 237, 0.18);
+      color: var(--accent-light);
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+    html[dir="rtl"] .currency-toggle { flex-direction: row-reverse; }
+
+    /* DOWNLOAD */
+    #download { padding-bottom: 8rem; }
+
+    .download-card {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 3rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      backdrop-filter: blur(20px);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .download-card::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: conic-gradient(from 0deg, transparent, var(--accent-glow), transparent, var(--cyan-glow), transparent);
+      animation: rotate-border 6s linear infinite;
+      opacity: 0.3;
+    }
+    @keyframes rotate-border { 100% { transform: rotate(360deg); } }
+
+    .download-card .inner {
+      position: relative;
+      z-index: 1;
+      background: var(--bg-secondary);
+      border-radius: 18px;
+      padding: 3rem;
+    }
+    .download-card .inner h3 { font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .download-card .inner p { color: var(--text-secondary); margin-bottom: 2rem; }
+    .download-card .version-tag {
+      display: inline-block;
+      padding: 0.3rem 1rem;
+      border-radius: 50px;
+      background: rgba(124, 58, 237, 0.15);
+      color: var(--accent-light);
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 3rem;
+      font-size: 1.1rem;
+      background: linear-gradient(135deg, var(--accent), #9333ea);
+      color: white;
+      border-radius: 14px;
+      text-decoration: none;
+      font-weight: 700;
+      transition: all 0.3s;
+      box-shadow: 0 0 40px var(--accent-glow);
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .download-btn:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 0 60px var(--accent-glow); }
+
+    .download-btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+      filter: grayscale(0.2);
+    }
+
+    .download-gate { display: none; }
+
+    .download-info {
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+    .download-info span {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    /* FOOTER */
+    footer {
+      position: relative;
+      z-index: 1;
+      padding: 3rem 2rem;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    footer .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    footer .footer-brand { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 1.1rem; }
+    footer .footer-brand .bolt { color: var(--accent-light); }
+    footer .footer-copy { color: var(--text-muted); font-size: 0.85rem; }
+    footer .footer-links { display: flex; gap: 1.5rem; }
+    footer .footer-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; transition: color 0.3s; }
+    footer .footer-links a:hover { color: var(--accent-light); }
+
+    /* CURSOR */
+    .custom-cursor {
+      position: fixed;
+      width: 20px; height: 20px;
+      border: 2px solid var(--accent-light);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+      mix-blend-mode: difference;
+    }
+    .custom-cursor.active { transform: scale(2); opacity: 0.5; }
+
+    /* LICENSE */
+    .license-section { max-width: 500px; margin: 3rem auto 0; }
+    .license-input-group { display: flex; gap: 0.75rem; }
+    .license-input {
+      flex: 1;
+      padding: 0.8rem 1.2rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .license-input::placeholder { color: var(--text-muted); }
+    .license-input:focus { border-color: var(--accent); }
+    .license-btn {
+      padding: 0.8rem 1.5rem;
+      background: linear-gradient(135deg, var(--accent), #9333ea);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+    .license-btn:hover { transform: translateY(-2px); box-shadow: 0 0 20px var(--accent-glow); }
+    .license-status { margin-top: 0.75rem; font-size: 0.85rem; text-align: center; min-height: 1.5rem; }
+    .license-status.valid { color: #22c55e; }
+    .license-status.invalid { color: #ef4444; }
+
+    .counter { display: inline-block; }
+    .reveal { opacity: 0; transform: translateY(40px); }
+
+    .glow-line {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent-glow), var(--cyan-glow), transparent);
+      position: relative;
+      z-index: 1;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .showcase { grid-template-columns: 1fr; gap: 2rem; }
+      .hero-stats { gap: 1.5rem; }
+      .pricing-grid { grid-template-columns: 1fr; max-width: 400px; }
+    }
+    @media (max-width: 768px) {
+      .nav-links { display: none; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; background: rgba(5,5,16,0.98); padding: 2rem; gap: 1rem; border-bottom: 1px solid var(--border); }
+      .nav-links.active { display: flex; }
+      .mobile-toggle { display: block; }
+      .features-grid { grid-template-columns: 1fr; }
+      .hero-stats { flex-direction: column; gap: 1.5rem; }
+      .compat-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* AUTH MODAL */
+    .auth-modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
+      z-index: 1000; display: flex; align-items: center; justify-content: center;
+      opacity: 0; visibility: hidden; transition: all 0.3s ease;
+    }
+    .auth-modal-overlay.active { opacity: 1; visibility: visible; }
+    .auth-modal {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px;
+      padding: 2.5rem; width: 100%; max-width: 400px; position: relative;
+      transform: translateY(20px); transition: transform 0.3s ease;
+    }
+    .auth-modal-overlay.active .auth-modal { transform: translateY(0); }
+    .auth-close {
+      position: absolute; top: 1rem; right: 1rem; background: none; border: none;
+      color: var(--text-muted); font-size: 1.5rem; cursor: pointer; transition: color 0.3s;
+    }
+    .auth-close:hover { color: var(--text-primary); }
+    .auth-tabs { display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+    .auth-tab {
+      background: none; border: none; color: var(--text-secondary); font-size: 1.1rem;
+      font-weight: 600; cursor: pointer; transition: color 0.3s; position: relative;
+    }
+    .auth-tab.active { color: var(--accent-light); }
+    .auth-tab.active::after {
+      content: ''; position: absolute; bottom: -1rem; left: 0; width: 100%; height: 2px;
+      background: var(--accent);
+    }
+    .auth-form { display: none; flex-direction: column; gap: 1.25rem; }
+    .auth-form.active { display: flex; }
+    .auth-input {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 10px;
+      padding: 0.8rem 1rem; color: var(--text-primary); width: 100%; font-family: inherit; transition: border-color 0.3s;
+    }
+    .auth-input:focus { border-color: var(--accent); outline: none; }
+    .auth-btn {
+      background: linear-gradient(135deg, var(--accent), #9333ea); color: white; border: none;
+      border-radius: 10px; padding: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.3s;
+      font-family: inherit; margin-top: 0.5rem;
+    }
+    .auth-btn:hover { transform: translateY(-2px); box-shadow: 0 0 20px var(--accent-glow); }
+    .auth-msg { text-align: center; font-size: 0.85rem; min-height: 1.2rem; }
+    .auth-msg.error { color: #ef4444; }
+    .auth-msg.success { color: #22c55e; }
+  </style>
+</head>
+<body>
+
+  <canvas id="three-canvas"></canvas>
+  <div class="custom-cursor" id="cursor"></div>
+
+  <!-- NAV -->
+  <nav class="nav" id="nav">
+    <a href="#" class="nav-logo">
+      <span class="bolt">⚡</span>
+      <span>Yatom</span>
+    </a>
+    <div class="nav-right">
+      <div class="nav-links" id="navLinks">
+        <a href="#features" data-i18n="nav_features">Fonctionnalités</a>
+        <a href="#reviews" data-i18n="nav_reviews">Avis</a>
+        <a href="#about" data-i18n="nav_about">À propos</a>
+        <a href="#pricing" data-i18n="nav_pricing">Tarifs</a>
+        <a href="#compatibility" data-i18n="nav_compat">Compatibilité</a>
+        <a href="#support" data-i18n="nav_support">Support</a>
+        <a href="#download" class="nav-cta" data-i18n="nav_download">Télécharger</a>
+      </div>
+      <div class="lang-switcher">
+        <button class="lang-btn" id="langBtn">
+          <span class="flag" id="langFlag">🇫🇷</span>
+          <span id="langLabel">FR</span>
+          <span class="chevron">▼</span>
+        </button>
+        <div class="lang-dropdown" id="langDropdown">
+          <button class="lang-option active" data-lang="fr"><span class="flag">🇫🇷</span> Français</button>
+          <button class="lang-option" data-lang="en"><span class="flag">🇬🇧</span> English</button>
+          <button class="lang-option" data-lang="it"><span class="flag">🇮🇹</span> Italiano</button>
+          <button class="lang-option" data-lang="es"><span class="flag">🇪🇸</span> Español</button>
+          <button class="lang-option" data-lang="pt"><span class="flag">🇵🇹</span> Português</button>
+          <button class="lang-option" data-lang="ar"><span class="flag">🇸🇦</span> العربية</button>
+        </div>
+      </div>
+
+      <div class="currency-toggle nav-currency-toggle" id="currencyToggleNav" aria-label="Currency">
+        <button class="currency-btn active" type="button" data-currency="usd" data-i18n="currency_usd_label">USD ($)</button>
+        <button class="currency-btn" type="button" data-currency="eur" data-i18n="currency_eur_label">EUR (€)</button>
+      </div>
+    </div>
+    <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">☰</button>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-orb"></div>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="dot"></span>
+        <span data-i18n="hero_badge">v3 — Dernière version (BETA)</span>
+      </div>
+      <h1>
+        <span data-i18n="hero_title1">Yatom</span><br>
+        <span class="gradient-text" data-i18n="hero_title2">Indétectable</span>
+      </h1>
+      <p class="hero-description" data-i18n="hero_desc">
+        Ce cheat a été conçu pour ne jamais être détecté. Cette version est en bêta.
+      </p>
+      <div class="hero-buttons">
+        <a href="#download" class="btn btn-primary">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          <span data-i18n="hero_btn_download">Télécharger</span>
+        </a>
+        <a href="#features" class="btn btn-secondary">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/></svg>
+          <span data-i18n="hero_btn_features">Voir les Fonctionnalités</span>
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="number"><span class="counter" data-target="20">0</span>+</div>
+          <div class="label" data-i18n="stat_cps">CPS Max</div>
+        </div>
+        <div class="hero-stat">
+          <div class="number"><span class="counter" data-target="9">0</span></div>
+          <div class="label" data-i18n="stat_clients">Clients Supportés</div>
+        </div>
+        <div class="hero-stat">
+          <div class="number">&lt;<span class="counter" data-target="1">0</span>ms</div>
+          <div class="label" data-i18n="stat_precision">Précision Timer</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="glow-line"></div>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <div class="section-header reveal">
+      <div class="overline" data-i18n="feat_overline">Fonctionnalités</div>
+      <h2 data-i18n="feat_title">Tout ce qu'il Faut pour Dominer</h2>
+      <p data-i18n="feat_desc">Conçu avec précision et discrétion. Chaque fonctionnalité est pensée pour vous garder en tête.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <div class="icon-wrapper purple">🎯</div>
+        <h3 data-i18n="f1_title">Clics Humains</h3>
+        <p data-i18n="f1_desc">Temps de maintien aléatoires (28-58ms) et micro-jitter créent des patterns impossibles à distinguer des vrais clics. L'anti-cheat ne voit rien.</p>
+        <span class="tag tag-active" data-i18n="tag_active">Actif</span>
+      </div>
+      <div class="feature-card reveal">
+        <div class="icon-wrapper cyan">⚡</div>
+        <h3 data-i18n="f2_title">Timer Précision 1ms</h3>
+        <p data-i18n="f2_desc">Utilise le timer haute résolution de Windows avec timeBeginPeriod(1) pour un scheduling de clics précis à la milliseconde.</p>
+        <span class="tag tag-active" data-i18n="tag_active">Actif</span>
+      </div>
+      <div class="feature-card reveal">
+        <div class="icon-wrapper green">🛡️</div>
+        <h3 data-i18n="f3_title">Mode Furtif</h3>
+        <p data-i18n="f3_desc">Le titre de la fenêtre se transforme en noms système génériques comme "Gestionnaire de périphériques" ou "Assistant Windows Update". Totalement invisible.</p>
+        <span class="tag tag-active" data-i18n="tag_active">Actif</span>
+      </div>
+      <div class="feature-card reveal">
+        <div class="icon-wrapper red">👻</div>
+        <h3 data-i18n="f9_title">100% Indétectable</h3>
+        <p data-i18n="f9_desc">Aucun ban enregistré. Notre technologie contourne les anti-cheats serveurs les plus avancés en simulant des signaux matériels purs.</p>
+        <span class="tag tag-active" data-i18n="tag_active">Actif</span>
+      </div>
+      <div class="feature-card reveal">
+        <div class="icon-wrapper orange">🖱️</div>
+        <h3 data-i18n="f4_title">Activation Intelligente</h3>
+        <p data-i18n="f4_desc">Maintenir pour cliquer avec des raccourcis configurables (F6, Mouse4, Mouse5). Pause automatique au clic droit ou quand Minecraft perd le focus.</p>
+        <span class="tag tag-active" data-i18n="tag_active">Actif</span>
+      </div>
+      <div class="feature-card reveal">
+        <div class="icon-wrapper pink">📏</div>
+        <h3 data-i18n="f5_title">Module Reach</h3>
+        <p data-i18n="f5_desc">Distance de portée configurable de 3.0 à 6.0 blocs avec un raccourci dédié pour un avantage compétitif.</p>
+        <span class="tag tag-soon" data-i18n="tag_soon">Bientôt</span>
+      </div>
+
+        <div class="feature-card reveal">
+          <div class="icon-wrapper orange">🛡️</div>
+          <h3 data-i18n="f7_title">Anti-KB</h3>
+          <p data-i18n="f7_desc">Réduction du knockback pour garder un contrôle plus stable en combat.</p>
+          <span class="tag tag-soon" data-i18n="tag_soon">Bientôt</span>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="icon-wrapper cyan">👁️</div>
+          <h3 data-i18n="f8_title">Xray</h3>
+          <p data-i18n="f8_desc">Détection visuelle des ressources pour aider à l'exploration (bêta).</p>
+          <span class="tag tag-soon" data-i18n="tag_soon">Bientôt</span>
+        </div>
+
+      <div class="feature-card reveal">
+        <div class="icon-wrapper blue">🔑</div>
+        <h3 data-i18n="f6_title">Système de Licence</h3>
+        <p data-i18n="f6_desc">Clés de licence liées au HWID avec contrôle d'expiration. L'activation sécurisée garantit que seuls les utilisateurs autorisés accèdent à l'outil.</p>
+        <span class="tag tag-active" data-i18n="tag_active">Actif</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="glow-line"></div>
+
+  <div class="glow-line"></div>
+
+  <!-- COMPATIBILITY -->
+  <section id="compatibility">
+    <div class="section-header reveal">
+      <div class="overline" data-i18n="compat_overline">Compatibilité</div>
+      <h2 data-i18n="compat_title">Compatible avec Tous les Clients</h2>
+      <p data-i18n="compat_desc">Détection automatique de fenêtre pour tous les clients Minecraft majeurs.</p>
+    </div>
+    <div class="compat-grid">
+      <div class="compat-item reveal"><div class="compat-icon">🟢</div><div class="compat-name">Minecraft</div></div>
+      <div class="compat-item reveal"><div class="compat-icon">🌙</div><div class="compat-name">Lunar Client</div></div>
+      <div class="compat-item reveal"><div class="compat-icon">🦁</div><div class="compat-name">Badlion</div></div>
+      <div class="compat-item reveal"><div class="compat-icon">🪶</div><div class="compat-name">Feather</div></div>
+      <div class="compat-item reveal"><div class="compat-icon">🔬</div><div class="compat-name">LabyMod</div></div>
+      <div class="compat-item reveal"><div class="compat-icon">⚔️</div><div class="compat-name">Salwyrr</div></div>
+      <div class="compat-item reveal"><div class="compat-icon">🛡️</div><div class="compat-name">CheatBreaker</div></div>
+      <div class="compat-item reveal"><div class="compat-icon">📦</div><div class="compat-name">CMPack</div></div>
+      <div class="compat-item reveal"><div class="compat-icon">⛏️</div><div class="compat-name">Craft</div></div>
+    </div>
+  </section>
+
+  <div class="glow-line"></div>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="section-header reveal">
+      <div class="overline" data-i18n="about_overline">À propos</div>
+      <h2 data-i18n="about_title">Yaleblan</h2>
+      <p data-i18n="about_desc">Le créateur derrière Yatom. Je conçois et améliore l'outil pour un usage stable, fluide et fiable.</p>
+    </div>
+
+    <div class="features-grid" style="max-width: 1100px;">
+      <div class="feature-card reveal">
+        <div class="icon-wrapper purple">🧑‍💻</div>
+        <h3 data-i18n="about_card1_title">Pourquoi me faire confiance ?</h3>
+        <p data-i18n="about_card1_desc">Je publie des mises à jour régulières, je réponds aux messages et je travaille pour rendre l'expérience plus agréable.</p>
+        <span class="tag tag-active" data-i18n="about_card1_tag">Support</span>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="icon-wrapper cyan">🛠️</div>
+        <h3 data-i18n="about_card2_title">Focus performance</h3>
+        <p data-i18n="about_card2_desc">Optimisation du timing, contrôle de la stabilité et ajustements en fonction des retours de la communauté.</p>
+        <span class="tag tag-active" data-i18n="about_card2_tag">Qualité</span>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="icon-wrapper green">🤝</div>
+        <h3 data-i18n="about_card3_title">Contact & acquisition</h3>
+        <p data-i18n="about_card3_desc">Pour acheter et accéder rapidement, utilise la section “Télécharger” puis suis l’étape de licence.</p>
+        <span class="tag tag-active" data-i18n="about_card3_tag">Rapide</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="glow-line"></div>
+
+  <!-- REVIEWS -->
+  <section id="reviews">
+    <div class="section-header reveal">
+      <div class="overline" data-i18n="reviews_overline">Avis clients</div>
+      <h2 data-i18n="reviews_title">Des retours qui donnent confiance</h2>
+      <p data-i18n="reviews_desc">Avis (exemples) FR/EN : timing fluide, stabilité et support.</p>
+    </div>
+
+    <div class="reviews-grid">
+      <div class="review-card reveal">
+        <div class="review-stars" aria-label="5 sur 5">★★★★★</div>
+        <p class="review-text" data-i18n="review1_text">Impressionné par la fluidité. Je garde le même rythme sans à-coups.</p>
+        <div class="review-meta">
+          <span class="review-badge">PvP</span>
+          <span>Yaleblan</span>
+        </div>
+      </div>
+      <div class="review-card reveal">
+        <div class="review-stars" aria-label="4 sur 5">★★★★☆</div>
+        <p class="review-text" data-i18n="review2_text">Ça marche très bien en match, et l’activation est simple.</p>
+        <div class="review-meta">
+          <span class="review-badge">PvP</span>
+          <span>Player</span>
+        </div>
+      </div>
+      <div class="review-card reveal">
+        <div class="review-stars" aria-label="5 sur 5">★★★★★</div>
+        <p class="review-text" data-i18n="review3_text">Top niveau stabilité. Je sens moins de variations bizarres.</p>
+        <div class="review-meta">
+          <span class="review-badge">Stabilité</span>
+          <span>Client</span>
+        </div>
+      </div>
+      <div class="review-card reveal">
+        <div class="review-stars" aria-label="4 sur 5">★★★★☆</div>
+        <p class="review-text" data-i18n="review4_text">Bien pour tester avant de s’engager. Le timing est agréable.</p>
+        <div class="review-meta">
+          <span class="review-badge">Essai</span>
+          <span>Alex</span>
+        </div>
+      </div>
+      <div class="review-card reveal">
+        <div class="review-stars" aria-label="5 sur 5">★★★★★</div>
+        <p class="review-text" data-i18n="review5_text">J’aime le côté fluide : on dirait vraiment un clic naturel.</p>
+        <div class="review-meta">
+          <span class="review-badge">Qualité</span>
+          <span>Sam</span>
+        </div>
+      </div>
+      <div class="review-card reveal">
+        <div class="review-stars" aria-label="4 sur 5">★★★★☆</div>
+        <p class="review-text" data-i18n="review6_text">Ça répond bien aux contrôles, pas de décalage gênant.</p>
+        <div class="review-meta">
+          <span class="review-badge">Contrôle</span>
+          <span>Mika</span>
+        </div>
+      </div>
+      <div class="review-card reveal">
+        <div class="review-stars" aria-label="5 sur 5">★★★★★</div>
+        <p class="review-text" data-i18n="review7_text">Très bon rapport qualité/prix pour le moment. J’attends la suite.</p>
+        <div class="review-meta">
+          <span class="review-badge">Rapport</span>
+          <span>Nova</span>
+        </div>
+      </div>
+      <div class="review-card reveal">
+        <div class="review-stars" aria-label="4 sur 5">★★★★☆</div>
+        <p class="review-text" data-i18n="review8_text">Le setup est rapide et j’ai pu jouer tout de suite.</p>
+        <div class="review-meta">
+          <span class="review-badge">Installation</span>
+          <span>Noah</span>
+        </div>
+      </div>
+      <div class="review-card reveal">
+        <div class="review-stars" aria-label="5 sur 5">★★★★★</div>
+        <p class="review-text" data-i18n="review9_text">Je vois une meilleure constance en combats longs.</p>
+        <div class="review-meta">
+          <span class="review-badge">PvP</span>
+          <span>Rayan</span>
+        </div>
+      </div>
+      <div class="review-card reveal">
+        <div class="review-stars" aria-label="4 sur 5">★★★★☆</div>
+        <p class="review-text" data-i18n="review10_text">Fonctionne bien, et les options sont claires pour un usage simple.</p>
+        <div class="review-meta">
+          <span class="review-badge">Clarté</span>
+          <span>Leo</span>
+        </div>
+      </div>
+      <div class="review-card reveal">
+        <div class="review-stars" aria-label="5 sur 5">★★★★★</div>
+        <p class="review-text" data-i18n="review11_text">Je recommande pour la stabilité et le confort en jeu.</p>
+        <div class="review-meta">
+          <span class="review-badge">Recommandé</span>
+          <span>Elia</span>
+        </div>
+      </div>
+      <div class="review-card reveal">
+        <div class="review-stars" aria-label="4 sur 5">★★★★☆</div>
+        <p class="review-text" data-i18n="review12_text">Bon produit, surtout en beta : ça s’améliore avec le temps.</p>
+        <div class="review-meta">
+          <span class="review-badge">Bêta</span>
+          <span>Timo</span>
+        </div>
+      </div>
+      <div class="review-card reveal">
+        <div class="review-stars" aria-label="5 sur 5">★★★★★</div>
+        <p class="review-text" data-i18n="review13_text">Le timing est super propre, je sens moins de variations.</p>
+        <div class="review-meta">
+          <span class="review-badge">Timing</span>
+          <span>Yann</span>
+        </div>
+      </div>
+      <div class="review-card reveal">
+        <div class="review-stars" aria-label="4 sur 5">★★★★☆</div>
+        <p class="review-text" data-i18n="review14_text">Je suis content de l’activation : ça marche sans prise de tête.</p>
+        <div class="review-meta">
+          <span class="review-badge">Facile</span>
+          <span>Omar</span>
+        </div>
+      </div>
+      <div class="review-card reveal">
+        <div class="review-stars" aria-label="5 sur 5">★★★★★</div>
+        <p class="review-text" data-i18n="review15_text">Support réactif et produit stable. Hâte d’avoir les futures features.</p>
+        <div class="review-meta">
+          <span class="review-badge">Support</span>
+          <span>Clara</span>
+        </div>
+      </div>
+      <div class="review-card reveal">
+        <div class="review-stars" aria-label="4 sur 5">★★★★☆</div>
+        <p class="review-text" data-i18n="review16_text">Pour le prix actuel, c’est vraiment intéressant. Je continue avec la beta.</p>
+        <div class="review-meta">
+          <span class="review-badge">Valeur</span>
+          <span>Zoé</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing">
+    <div class="section-header reveal">
+      <div class="overline" data-i18n="price_overline">Tarifs</div>
+      <h2 data-i18n="price_title">Choisis ton Plan</h2>
+      <p data-i18n="price_desc">Accès simple et abordable. Essaie pour une heure ou débloque à vie.</p>
+        <p class="price-note" data-i18n="price_note"></p>
+    </div>
+
+    <div class="pricing-grid">
+      <div class="pricing-card reveal">
+        <div class="pricing-icon">⏱️</div>
+        <h3 data-i18n="plan1_name">Pass 1 Heure</h3>
+        <p class="pricing-desc" data-i18n="plan1_desc">Parfait pour tester ou une session rapide.</p>
+        <div class="price">
+          <span class="currency" aria-hidden="true">$</span><span class="money-amount" data-amount-usd="1.00">1.00</span>
+          <div class="price-secondary">
+            <span class="price-secondary-prefix" aria-hidden="true">~</span>
+            <span class="money-secondary-currency" aria-hidden="true">€</span><span class="money-secondary-amount">0.92</span>
+          </div>
+        </div>
+        <div class="price-period" data-i18n="plan1_period">/ heure</div>
+        <ul class="pricing-features">
+          <li><span class="pf-icon">✓</span> <span data-i18n="pf_all_features">Toutes les fonctionnalités</span></li>
+          <li><span class="pf-icon">✓</span> <span data-i18n="pf_all_clients">Tous les clients supportés</span></li>
+          <li><span class="pf-icon">✓</span> <span data-i18n="pf_stealth">Mode furtif inclus</span></li>
+          <li><span class="pf-icon">✓</span> <span data-i18n="pf_instant">Activation instantanée</span></li>
+        </ul>
+        <button class="price-btn btn-outline" onclick="handlePurchase('1h')" data-i18n="plan_btn_try">Obtenir 1 heure</button>
+      </div>
+
+      <div class="pricing-card featured reveal">
+        <div class="popular-badge" data-i18n="popular_badge">POPULAIRE</div>
+        <div class="pricing-icon">👑</div>
+        <h3 data-i18n="plan2_name">Accès à Vie</h3>
+        <p class="pricing-desc" data-i18n="plan2_desc">Un seul paiement, accès permanent.</p>
+        <div class="price">
+          <span class="currency" aria-hidden="true">$</span><span class="money-amount" data-amount-usd="5">5</span>
+          <div class="price-secondary">
+            <span class="price-secondary-prefix" aria-hidden="true">~</span>
+            <span class="money-secondary-currency" aria-hidden="true">€</span><span class="money-secondary-amount">4.63</span>
+          </div>
+        </div>
+        <div class="price-period" data-i18n="plan2_period">paiement unique</div>
+        <ul class="pricing-features">
+          <li><span class="pf-icon">✓</span> <span data-i18n="pf_all_features">Toutes les fonctionnalités</span></li>
+          <li><span class="pf-icon">✓</span> <span data-i18n="pf_all_clients">Tous les clients supportés</span></li>
+          <li><span class="pf-icon">✓</span> <span data-i18n="pf_stealth">Mode furtif inclus</span></li>
+          <li><span class="pf-icon">✓</span> <span data-i18n="pf_instant">Activation instantanée</span></li>
+          <li><span class="pf-icon">✓</span> <span data-i18n="pf_updates">Mises à jour gratuites à vie</span></li>
+          <li><span class="pf-icon">✓</span> <span data-i18n="pf_priority">Support prioritaire</span></li>
+        </ul>
+        <button class="price-btn btn-glow" onclick="handlePurchase('lifetime')" data-i18n="plan_btn_get">Obtenir à Vie</button>
+      </div>
+
+      <div class="pricing-card reveal">
+        <div class="pricing-icon">🧩</div>
+        <h3 data-i18n="plan3_name">Plugin Minecraft sur mesure</h3>
+        <p class="pricing-desc" data-i18n="plan3_desc">Je crée n'importe quel plugin Minecraft sur demande.</p>
+        <div class="price">
+          <span class="currency" aria-hidden="true">€</span><span class="money-amount" data-amount-eur="40">40</span>
+          <div class="price-secondary">
+            <span class="price-secondary-prefix" aria-hidden="true">~</span>
+            <span class="money-secondary-currency" aria-hidden="true">$</span><span class="money-secondary-amount">43.2</span>
+          </div>
+        </div>
+        <div class="price-period" data-i18n="plan3_period">paiement unique</div>
+        <ul class="pricing-features">
+          <li><span class="pf-icon">✓</span> <span data-i18n="pf_custom_1">Plugin configuré pour ton serveur</span></li>
+          <li><span class="pf-icon">✓</span> <span data-i18n="pf_custom_2">Livraison selon tes besoins</span></li>
+          <li><span class="pf-icon">✓</span> <span data-i18n="pf_custom_3">Support après la livraison</span></li>
+        </ul>
+        <button class="price-btn btn-outline" onclick="handlePurchase('plugin')" data-i18n="plan_btn_custom">Demander</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="glow-line"></div>
+
+  <!-- SUPPORT -->
+  <section id="support">
+    <div class="section-header reveal">
+      <div class="overline" data-i18n="support_overline">Support</div>
+      <h2 data-i18n="support_title">Besoin d'aide ?</h2>
+      <p data-i18n="support_desc">Rejoins notre communauté Discord ou envoie-nous un message directement.</p>
+    </div>
+    
+    <div class="support-container reveal" style="max-width: 650px; margin: 2rem auto 0; background: var(--bg-card); padding: 2.5rem; border-radius: 20px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+      <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 2rem; flex-wrap: wrap;">
+        <a href="https://discord.gg/cj4nFhGrbV" target="_blank" class="price-btn btn-glow" style="max-width: 250px; text-decoration: none;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 0.5rem;"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+          <span data-i18n="support_discord">Rejoindre le Discord</span>
+        </a>
+      </div>
+      
+      <div style="text-align: center; margin-bottom: 2rem; position: relative;">
+        <hr style="border: none; border-top: 1px solid var(--border); position: absolute; top: 50%; left: 0; right: 0; z-index: 0;">
+        <span style="background: var(--bg-card); padding: 0 15px; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; position: relative; z-index: 1;" data-i18n="support_or">OU ENVOYEZ UN MESSAGE</span>
+      </div>
+
+      <form id="supportForm" onsubmit="handleSupportSubmit(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <input type="email" id="supportEmail" class="auth-input" placeholder="Votre adresse e-mail" required data-i18n-placeholder="support_ph_email" style="background: rgba(0,0,0,0.2);">
+        <textarea id="supportMessage" class="auth-input" placeholder="Comment pouvons-nous vous aider ?" required style="min-height: 120px; resize: vertical; background: rgba(0,0,0,0.2);" data-i18n-placeholder="support_ph_msg"></textarea>
+        <button type="submit" class="auth-btn" id="supportBtn" data-i18n="support_send">Envoyer le message</button>
+        <div id="supportMsg" class="auth-msg"></div>
+      </form>
+    </div>
+  </section>
+
+  <div class="glow-line" style="margin-top: 4rem;"></div>
+
+  <!-- DOWNLOAD -->
+  <section id="download">
+    <div class="section-header reveal">
+      <div class="overline" data-i18n="dl_overline">Commencer</div>
+      <h2 data-i18n="dl_title">Télécharger Yatom</h2>
+      <p data-i18n="dl_desc">Un clic. Domination instantanée.</p>
+    </div>
+
+    <div class="download-card reveal">
+      <div class="inner">
+        <div class="version-tag" data-i18n="dl_version">⚡ v3.0 — Dernière Stable</div>
+        <h3>Yatom Client</h3>
+        <p data-i18n="dl_info">Windows 10/11 • Léger • Portable</p>
+        <a href="https://discord.gg/cj4nFhGrbV" target="_blank" class="download-btn" id="downloadBtn">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          <span data-i18n="dl_btn">Rejoindre Discord pour Télécharger</span>
+        </a>
+        <div class="download-gate" id="downloadGate" style="display: block; margin-top: 1rem;">
+          <p id="downloadStatusMsg" style="color: var(--text-secondary); font-size: 0.98rem; margin-bottom: 0.75rem;">L'acquisition du logiciel (.exe) s'effectue directement sur notre communauté privée après achat.</p>
+        </div>
+        <div class="download-info">
+          <span>📁 ~15 Mo</span>
+          <span data-i18n="dl_virus">🔒 Sans virus</span>
+          <span data-i18n="dl_noinstall">🚀 Aucune installation requise</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="license-section reveal">
+      <p style="color: var(--text-secondary); text-align: center; margin-bottom: 1rem; font-size: 0.95rem;" data-i18n="lic_prompt">Vous avez déjà une clé de licence ?</p>
+      <div class="license-input-group">
+        <input type="text" class="license-input" id="licenseInput" placeholder="YATOM-XXXX-XXXX-XXXX-XXXX" maxlength="40">
+        <button class="license-btn" id="licenseBtn" data-i18n="lic_btn">Vérifier</button>
+      </div>
+      <div class="license-status" id="licenseStatus"></div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand"><span class="bolt">⚡</span> Yatom</div>
+      <div class="footer-copy" data-i18n="footer_copy">© 2026 Yatom. Tous droits réservés.</div>
+      <div class="footer-links">
+        <a href="#features" data-i18n="nav_features">Fonctionnalités</a>
+        <a href="#download" data-i18n="nav_download">Télécharger</a>
+        <a href="#">Discord</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ─── TRANSLATIONS ───
+    const T = {
+      fr: {
+        nav_features: "Fonctionnalités", nav_how: "Fonctionnement", nav_pricing: "Tarifs", nav_compat: "Compatibilité", nav_download: "Télécharger",
+        nav_about: "À propos",
+        nav_reviews: "Avis",
+        currency_usd_label: "USD ($)", currency_eur_label: "EUR (€)",
+        about_overline: "À propos", about_title: "Yaleblan",
+        about_desc: "Le créateur derrière Yatom. Je conçois et améliore l'outil pour un usage stable, fluide et fiable.",
+        about_card1_title: "Pourquoi me faire confiance ?",
+        about_card1_desc: "Je publie des mises à jour régulières, je réponds aux messages et je travaille pour rendre l'expérience plus agréable.",
+        about_card1_tag: "Support",
+        about_card2_title: "Focus performance",
+        about_card2_desc: "Optimisation du timing, contrôle de la stabilité et ajustements en fonction des retours de la communauté.",
+        about_card2_tag: "Qualité",
+        about_card3_title: "Contact & acquisition",
+        about_card3_desc: "Pour acheter et accéder rapidement, utilise la section “Télécharger” puis suis l’étape de licence.",
+        about_card3_tag: "Rapide",
+        reviews_overline: "Avis clients",
+        reviews_title: "Des retours qui donnent confiance",
+        reviews_desc: "Avis (exemples) FR/EN : timing fluide, stabilité et support.",
+        review1_text: "Impressionné par la fluidité. Je garde le même rythme sans à-coups.",
+        review2_text: "Ça marche très bien en match, et l’activation est simple.",
+        review3_text: "Top niveau stabilité. Je sens moins de variations bizarres.",
+        review4_text: "Bien pour tester avant de s’engager. Le timing est agréable.",
+        review5_text: "J’aime le côté fluide : on dirait vraiment un clic naturel.",
+        review6_text: "Ça répond bien aux contrôles, pas de décalage gênant.",
+        review7_text: "Très bon rapport qualité/prix pour le moment. J’attends la suite.",
+        review8_text: "Le setup est rapide et j’ai pu jouer tout de suite.",
+        review9_text: "Je vois une meilleure constance en combats longs.",
+        review10_text: "Fonctionne bien, et les options sont claires pour un usage simple.",
+        review11_text: "Je recommande pour la stabilité et le confort en jeu.",
+        review12_text: "Bon produit, surtout en beta : ça s’améliore avec le temps.",
+        review13_text: "Le timing est super propre, je sens moins de variations.",
+        review14_text: "Je suis content de l’activation : ça marche sans prise de tête.",
+        review15_text: "Support réactif et produit stable. Hâte d’avoir les futures features.",
+        review16_text: "Pour le prix actuel, c’est vraiment intéressant. Je continue avec la beta.",
+        hero_badge: "v3 — Dernière version (BETA)", hero_title1: "Yatom", hero_title2: "Indétectable",
+        hero_desc: "Ce cheat a été conçu pour ne jamais être détecté. Cette version est en bêta.",
+        hero_btn_download: "Télécharger", hero_btn_features: "Voir les Fonctionnalités",
+        stat_cps: "CPS Max", stat_clients: "Clients Supportés", stat_precision: "Précision Timer",
+        feat_overline: "Fonctionnalités", feat_title: "Tout ce qu'il Faut pour Dominer",
+        feat_desc: "Conçu avec précision et discrétion. Chaque fonctionnalité est pensée pour vous garder en tête.",
+        f1_title: "Clics Humains", f1_desc: "Temps de maintien aléatoires (28-58ms) et micro-jitter créent des patterns impossibles à distinguer des vrais clics. L'anti-cheat ne voit rien.",
+        f2_title: "Timer Précision 1ms", f2_desc: "Utilise le timer haute résolution de Windows avec timeBeginPeriod(1) pour un scheduling de clics précis à la milliseconde.",
+        f3_title: "Mode Furtif", f3_desc: "Le titre de la fenêtre se transforme en noms système génériques comme \"Gestionnaire de périphériques\" ou \"Assistant Windows Update\". Totalement invisible.",
+        f4_title: "Activation Intelligente", f4_desc: "Maintenir pour cliquer avec des raccourcis configurables (F6, Mouse4, Mouse5). Pause automatique au clic droit ou quand Minecraft perd le focus.",
+        f5_title: "Module Reach", f5_desc: "Distance de portée configurable de 3.0 à 6.0 blocs avec un raccourci dédié pour un avantage compétitif.",
+        f6_title: "Système de Licence", f6_desc: "Clés de licence liées au HWID avec contrôle d'expiration. L'activation sécurisée garantit que seuls les utilisateurs autorisés accèdent à l'outil.",
+        f7_title: "Anti-KB", f7_desc: "Réduction du knockback pour garder un contrôle plus stable en combat.",
+        f8_title: "Xray", f8_desc: "Détection visuelle des ressources pour aider à l'exploration (bêta).",
+        f9_title: "100% Indétectable", f9_desc: "Aucun ban enregistré. Notre technologie contourne les anti-cheats serveurs les plus avancés en simulant des signaux matériels purs.",
+        tag_active: "Actif", tag_soon: "Bientôt",
+        how_overline: "Sous le Capot", how_title: "Conçu pour la Discrétion",
+        how_desc: "Appels Win32 SendInput bas niveau avec un timing aléatoire qui imite le comportement humain réel.",
+        show_title: "Pas Comme les Autres", show_desc: "Yatom ne clique pas juste vite — il clique intelligemment. Chaque paramètre est randomisé dans des plages humainement plausibles, rendant la détection quasi impossible.",
+        check1: "Win32 SendInput pour injection d'input au niveau kernel", check2: "Délais aléatoires entre chaque clic",
+        check3: "Micro-jitter simule les mouvements naturels de la main", check4: "Pause automatique quand Minecraft perd le focus",
+        check5: "Auto-destruction pour supprimer toute trace instantanément",
+        compat_overline: "Compatibilité", compat_title: "Compatible avec Tous les Clients",
+        compat_desc: "Détection automatique de fenêtre pour tous les clients Minecraft majeurs.",
+        price_overline: "Tarifs", price_title: "Choisis ton Plan", price_desc: "Accès simple et abordable. Essaie pour une heure ou débloque à vie.",
+        price_note: "Prix avantageux maintenant : il n'y a pas encore beaucoup de fonctionnalités. Le prix augmentera quand de nouvelles fonctionnalités seront ajoutées.",
+        plan1_name: "Pass 1 Heure", plan1_desc: "Parfait pour tester ou une session rapide.", plan1_period: "/ heure",
+        plan2_name: "Accès à Vie", plan2_desc: "Un seul paiement, accès permanent.", plan2_period: "paiement unique",
+        pf_all_features: "Toutes les fonctionnalités", pf_all_clients: "Tous les clients supportés",
+        pf_stealth: "Mode furtif inclus", pf_instant: "Activation instantanée",
+        pf_updates: "Mises à jour gratuites à vie", pf_priority: "Support prioritaire",
+        plan_btn_try: "Obtenir 1 heure", plan_btn_get: "Obtenir à Vie", popular_badge: "POPULAIRE",
+        plan3_name: "Plugin Minecraft sur mesure",
+        plan3_desc: "Je crée n'importe quel plugin Minecraft sur demande.",
+        plan3_period: "paiement unique",
+        pf_custom_1: "Plugin configuré pour ton serveur",
+        pf_custom_2: "Livraison selon tes besoins",
+        pf_custom_3: "Support après la livraison",
+        plan_btn_custom_req: "Demander",
+        dl_overline: "Commencer", dl_title: "Télécharger Yatom", dl_desc: "Un clic. Domination instantanée.",
+        dl_version: "⚡ v3.0 — Dernière Stable", dl_info: "Windows 10/11 • Léger • Portable",
+        dl_btn: "Télécharger pour Windows", dl_virus: "🔒 Sans virus", dl_noinstall: "🚀 Aucune installation requise",
+        download_gate: "Paiement requis avant le téléchargement.",
+        paid_btn: "J'ai payé",
+        nav_login: "Connexion", nav_logout: "Déconnexion",
+        auth_login_tab: "Connexion", auth_register_tab: "Inscription",
+        auth_login_btn: "Se connecter", auth_register_btn: "S'inscrire",
+        lic_prompt: "Vous avez déjà une clé de licence ?", lic_btn: "Vérifier",
+        lic_verifying: "Vérification...", lic_valid: "✓ Clé de licence validée avec succès !",
+        lic_invalid: "✕ Format de clé invalide. Attendu : YATOM-XXXX-...",
+        dl_preparing: "Préparation...", dl_ready: "Prêt !",
+        footer_copy: "© 2026 Yatom. Tous droits réservés.",
+        nav_support: "Support", support_overline: "Support",
+        support_title: "Besoin d'aide ?", support_desc: "Rejoins notre communauté Discord ou envoie-nous un message directement.",
+        support_discord: "Rejoindre le Discord", support_or: "Ou envoyez un message",
+        support_ph_email: "Votre adresse e-mail", support_ph_msg: "Comment pouvons-nous vous aider ?",
+        support_send: "Envoyer le message"
+      },
+      en: {
+        nav_features: "Features", nav_how: "How It Works", nav_pricing: "Pricing", nav_compat: "Compatibility", nav_download: "Download",
+        currency_usd_label: "USD ($)", currency_eur_label: "EUR (€)",
+        nav_about: "About",
+        nav_reviews: "Reviews",
+        about_overline: "About",
+        about_title: "Yaleblan",
+        about_desc: "The creator behind Yatom. I build and improve the tool for stable, smooth, and reliable use.",
+        about_card1_title: "Why trust me?",
+        about_card1_desc: "I release regular updates, I reply to messages, and I work to make the experience better.",
+        about_card1_tag: "Support",
+        about_card2_title: "Performance focus",
+        about_card2_desc: "Timing optimization, stability control, and adjustments based on community feedback.",
+        about_card2_tag: "Quality",
+        about_card3_title: "Contact & access",
+        about_card3_desc: "To buy and get access quickly, use the “Download” section and follow the license step.",
+        about_card3_tag: "Fast",
+        reviews_overline: "Customer Reviews",
+        reviews_title: "Feedback that builds trust",
+        reviews_desc: "Reviews (examples) FR/EN: smooth timing, stability, and support.",
+        review1_text: "Impressed by the smoothness. I keep the same rhythm without awkward jumps.",
+        review2_text: "Works really well in matches, and activation is straightforward.",
+        review3_text: "Great stability. I notice fewer weird variations.",
+        review4_text: "Perfect to test first. The timing feels good.",
+        review5_text: "I love how fluid it feels—like a natural click.",
+        review6_text: "Controls feel responsive. No annoying delay.",
+        review7_text: "Great value right now. I’m excited for what’s next.",
+        review8_text: "Setup is fast and I could play right away.",
+        review9_text: "Better consistency in longer fights.",
+        review10_text: "Does the job well, and settings are clear for simple use.",
+        review11_text: "Recommended for comfort and stability during gameplay.",
+        review12_text: "Good product, especially in beta—it keeps improving.",
+        review13_text: "Timing feels very clean. Fewer noticeable fluctuations.",
+        review14_text: "Happy with activation—it just works without hassle.",
+        review15_text: "Responsive support and stable product. Can’t wait for new features.",
+        review16_text: "For the current price, it’s really worth it. Staying on the beta.",
+        hero_badge: "v3 — Latest Version (BETA)", hero_title1: "Yatom", hero_title2: "Undetectable",
+        hero_desc: "This cheat was designed to never be detected. This is a beta version.",
+        hero_btn_download: "Download Now", hero_btn_features: "Explore Features",
+        stat_cps: "Max CPS", stat_clients: "Supported Clients", stat_precision: "Timer Precision",
+        feat_overline: "Features", feat_title: "Everything You Need to Dominate",
+        feat_desc: "Built with precision and stealth in mind. Every feature designed to keep you ahead.",
+        f1_title: "Human-Like Clicking", f1_desc: "Randomized hold times (28-58ms) and micro-jitter create patterns indistinguishable from real clicks. Anti-cheat can't tell the difference.",
+        f2_title: "1ms Precision Timer", f2_desc: "Uses Windows high-resolution timer with timeBeginPeriod(1) for millisecond-accurate click scheduling.",
+        f3_title: "Stealth Mode", f3_desc: "Window title morphs into generic system names like \"Device Manager\" or \"Windows Update Assistant\". Completely invisible.",
+        f4_title: "Smart Activation", f4_desc: "Hold-to-click with configurable hotkeys (F6, Mouse4, Mouse5). Automatic pause when right-clicking or when Minecraft loses focus.",
+        f5_title: "Reach Module", f5_desc: "Configurable reach distance from 3.0 to 6.0 blocks with dedicated keybind toggle for competitive advantage.",
+        f6_title: "License System", f6_desc: "HWID-bound license keys with expiration control. Secure activation ensures only authorized users access the tool.",
+        f7_title: "Anti-KB", f7_desc: "Knockback reduction for more stable control during fights.",
+        f8_title: "Xray", f8_desc: "Visual resource detection to help exploration (beta).",
+        f9_title: "100% Undetectable", f9_desc: "Zero bans recorded. Our technology completely bypasses advanced server-side anti-cheats by simulating pure hardware signals.",
+        tag_active: "Active", tag_soon: "Coming Soon",
+        how_overline: "Under the Hood", how_title: "Engineered for Stealth",
+        how_desc: "Low-level Win32 SendInput calls with randomized timing that mimics real human behavior.",
+        show_title: "Built Different", show_desc: "Yatom doesn't just click fast — it clicks smart. Every parameter is randomized within human-plausible ranges, making detection virtually impossible.",
+        check1: "Win32 SendInput for kernel-level input injection", check2: "Randomized delays between every single click",
+        check3: "Micro-jitter simulates natural hand movement", check4: "Auto-pause when Minecraft loses focus",
+        check5: "Self-destruct to remove all traces instantly",
+        compat_overline: "Compatibility", compat_title: "Works With Every Client",
+        compat_desc: "Automatic window detection for all major Minecraft clients.",
+        price_overline: "Pricing", price_title: "Choose Your Plan", price_desc: "Simple and affordable access. Try for an hour or unlock forever.",
+        price_note: "Low price for now: not many features are available yet. The price will increase when more features are added.",
+        plan1_name: "1 Hour Pass", plan1_desc: "Perfect to test or for a quick session.", plan1_period: "/ hour",
+        plan2_name: "Lifetime Access", plan2_desc: "One payment, permanent access.", plan2_period: "one-time payment",
+        pf_all_features: "All features included", pf_all_clients: "All clients supported",
+        pf_stealth: "Stealth mode included", pf_instant: "Instant activation",
+        pf_updates: "Free lifetime updates", pf_priority: "Priority support",
+        plan_btn_try: "Get 1 hour", plan_btn_get: "Get Lifetime", popular_badge: "POPULAR",
+        plan3_name: "Custom Minecraft Plugin",
+        plan3_desc: "I create any Minecraft plugin on request.",
+        plan3_period: "one-time payment",
+        pf_custom_1: "Plugin configured for your server",
+        pf_custom_2: "Delivery based on your needs",
+        pf_custom_3: "Support after delivery",
+        plan_btn_custom: "Request",
+        dl_overline: "Get Started", dl_title: "Download Yatom", dl_desc: "One click. Instant domination.",
+        dl_version: "⚡ v3.0 — Latest Stable", dl_info: "Windows 10/11 • Lightweight • Portable",
+        dl_btn: "Download for Windows", dl_virus: "🔒 Virus-free", dl_noinstall: "🚀 No install needed",
+        download_gate: "Payment required before download.",
+        paid_btn: "I paid",
+        nav_login: "Login", nav_logout: "Logout",
+        auth_login_tab: "Login", auth_register_tab: "Sign up",
+        auth_login_btn: "Sign in", auth_register_btn: "Create account",
+        lic_prompt: "Already have a license key?", lic_btn: "Verify",
+        lic_verifying: "Verifying...", lic_valid: "✓ License key validated successfully!",
+        lic_invalid: "✕ Invalid license key format. Expected: YATOM-XXXX-...",
+        dl_preparing: "Preparing...", dl_ready: "Ready!",
+        footer_copy: "© 2026 Yatom. All rights reserved.",
+        nav_support: "Support", support_overline: "Support",
+        support_title: "Need help?", support_desc: "Join our Discord community or send us a message directly.",
+        support_discord: "Join Discord", support_or: "Or send a message",
+        support_ph_email: "Your email address", support_ph_msg: "How can we help you?",
+        support_send: "Send Message"
+      },
+      it: {
+        nav_features: "Funzionalità", nav_how: "Come Funziona", nav_pricing: "Prezzi", nav_compat: "Compatibilità", nav_download: "Scarica",
+        currency_usd_label: "USD ($)", currency_eur_label: "EUR (€)",
+        nav_about: "Info",
+        nav_reviews: "Reviews",
+        about_overline: "Info",
+        about_title: "Yaleblan",
+        about_desc: "Il creatore dietro Yatom. Costruisco e miglioro lo strumento per un uso stabile, fluido e affidabile.",
+        about_card1_title: "Perché fidarti di me?",
+        about_card1_desc: "Pubblico aggiornamenti regolari, rispondo ai messaggi e lavoro per rendere l’esperienza migliore.",
+        about_card1_tag: "Supporto",
+        about_card2_title: "Focus sulle prestazioni",
+        about_card2_desc: "Ottimizzazione del timing, controllo della stabilità e miglioramenti in base ai feedback della community.",
+        about_card2_tag: "Qualità",
+        about_card3_title: "Contatto & accesso",
+        about_card3_desc: "Per acquistare e accedere velocemente, vai alla sezione “Download” e segui il passaggio della licenza.",
+        about_card3_tag: "Veloce",
+        hero_badge: "v3 — Ultima versione (BETA)", hero_title1: "Yatom", hero_title2: "Indétectable",
+        hero_desc: "Questo cheat è stato progettato per non essere mai rilevato. Questa è una versione beta.",
+        hero_btn_download: "Scarica Ora", hero_btn_features: "Scopri le Funzionalità",
+        stat_cps: "CPS Max", stat_clients: "Client Supportati", stat_precision: "Precisione Timer",
+        feat_overline: "Funzionalità", feat_title: "Tutto il Necessario per Dominare",
+        feat_desc: "Progettato con precisione e discrezione. Ogni funzionalità pensata per mantenerti in vantaggio.",
+        f1_title: "Click Umani", f1_desc: "Tempi di pressione casuali (28-58ms) e micro-jitter creano pattern indistinguibili dai click reali. L'anti-cheat non nota nulla.",
+        f2_title: "Timer Precisione 1ms", f2_desc: "Usa il timer ad alta risoluzione di Windows con timeBeginPeriod(1) per uno scheduling di click preciso al millisecondo.",
+        f3_title: "Modalità Stealth", f3_desc: "Il titolo della finestra si trasforma in nomi di sistema generici come \"Gestione Dispositivi\" o \"Assistente Windows Update\". Completamente invisibile.",
+        f4_title: "Attivazione Intelligente", f4_desc: "Tieni premuto per cliccare con tasti configurabili (F6, Mouse4, Mouse5). Pausa automatica al click destro o quando Minecraft perde il focus.",
+        f5_title: "Modulo Reach", f5_desc: "Distanza di portata configurabile da 3.0 a 6.0 blocchi con keybind dedicato per un vantaggio competitivo.",
+        f6_title: "Sistema di Licenza", f6_desc: "Chiavi di licenza legate all'HWID con controllo scadenza. L'attivazione sicura garantisce l'accesso solo agli utenti autorizzati.",
+        f7_title: "Anti-KB", f7_desc: "Riduzione del knockback per un controllo più stabile durante i combattimenti.",
+        f8_title: "Xray", f8_desc: "Rilevamento visivo delle risorse per aiutare l'esplorazione (beta).",
+        tag_active: "Attivo", tag_soon: "In Arrivo",
+        how_overline: "Sotto il Cofano", how_title: "Progettato per la Discrezione",
+        how_desc: "Chiamate Win32 SendInput a basso livello con timing casuale che imita il comportamento umano reale.",
+        show_title: "Diverso dagli Altri", show_desc: "Yatom non clicca solo veloce — clicca in modo intelligente. Ogni parametro è randomizzato entro range umanamente plausibili, rendendo il rilevamento praticamente impossibile.",
+        check1: "Win32 SendInput per iniezione input a livello kernel", check2: "Ritardi casuali tra ogni singolo click",
+        check3: "Micro-jitter simula i movimenti naturali della mano", check4: "Pausa automatica quando Minecraft perde il focus",
+        check5: "Auto-distruzione per rimuovere ogni traccia istantaneamente",
+        compat_overline: "Compatibilità", compat_title: "Compatibile con Tutti i Client",
+        compat_desc: "Rilevamento automatico della finestra per tutti i principali client Minecraft.",
+        price_overline: "Prezzi", price_title: "Scegli il Tuo Piano", price_desc: "Accesso semplice e conveniente. Prova per un'ora o sblocca per sempre.",
+        price_note: "Prezzo basso per ora: non ci sono ancora molte funzionalità. Il prezzo aumenterà quando ne verranno aggiunte altre.",
+        plan1_name: "Pass 1 Ora", plan1_desc: "Perfetto per testare o per una sessione veloce.", plan1_period: "/ ora",
+        plan2_name: "Accesso a Vita", plan2_desc: "Un solo pagamento, accesso permanente.", plan2_period: "pagamento unico",
+        pf_all_features: "Tutte le funzionalità", pf_all_clients: "Tutti i client supportati",
+        pf_stealth: "Modalità stealth inclusa", pf_instant: "Attivazione istantanea",
+        pf_updates: "Aggiornamenti gratuiti a vita", pf_priority: "Supporto prioritario",
+        plan_btn_try: "Provare", plan_btn_get: "Ottieni a Vita", popular_badge: "POPOLARE",
+        plan3_name: "Plugin Minecraft su Misura",
+        plan3_desc: "Creo qualsiasi plugin Minecraft su richiesta.",
+        plan3_period: "pagamento unico",
+        pf_custom_1: "Plugin configurato per il tuo server",
+        pf_custom_2: "Consegna in base alle tue esigenze",
+        pf_custom_3: "Supporto dopo la consegna",
+        plan_btn_custom: "Richiedi",
+        dl_overline: "Inizia", dl_title: "Scarica Yatom", dl_desc: "Un click. Dominio istantaneo.",
+        dl_version: "⚡ v3.0 — Ultima Stabile", dl_info: "Windows 10/11 • Leggero • Portatile",
+        dl_btn: "Scarica per Windows", dl_virus: "🔒 Senza virus", dl_noinstall: "🚀 Nessuna installazione",
+        download_gate: "Pagamento richiesto prima del download.",
+        paid_btn: "Ho pagato",
+        lic_prompt: "Hai già una chiave di licenza?", lic_btn: "Verifica",
+        lic_verifying: "Verifica...", lic_valid: "✓ Chiave di licenza validata con successo!",
+        lic_invalid: "✕ Formato chiave non valido. Atteso: YATOM-XXXX-...",
+        dl_preparing: "Preparazione...", dl_ready: "Pronto!",
+        footer_copy: "© 2026 Yatom. Tutti i diritti riservati."
+      },
+      es: {
+        nav_features: "Características", nav_how: "Cómo Funciona", nav_pricing: "Precios", nav_compat: "Compatibilidad", nav_download: "Descargar",
+        currency_usd_label: "USD ($)", currency_eur_label: "EUR (€)",
+        nav_about: "Acerca de",
+        nav_reviews: "Reseñas",
+        about_overline: "Acerca de",
+        about_title: "Yaleblan",
+        about_desc: "El creador detrás de Yatom. Construyo y mejoro la herramienta para un uso estable, fluido y fiable.",
+        about_card1_title: "¿Por qué confiar en mí?",
+        about_card1_desc: "Publico actualizaciones regulares, respondo a los mensajes y trabajo para mejorar la experiencia.",
+        about_card1_tag: "Soporte",
+        about_card2_title: "Enfoque en rendimiento",
+        about_card2_desc: "Optimización del timing, control de estabilidad y ajustes según los comentarios de la comunidad.",
+        about_card2_tag: "Calidad",
+        about_card3_title: "Contacto y acceso",
+        about_card3_desc: "Para comprar y acceder rápido, usa la sección “Descargar” y sigue el paso de la licencia.",
+        about_card3_tag: "Rápido",
+        hero_badge: "v3 — Última versión (BETA)", hero_title1: "Yatom", hero_title2: "Indetectable",
+        hero_desc: "Este cheat fue diseñado para no ser detectado nunca. Esta es una versión beta.",
+        hero_btn_download: "Descargar Ahora", hero_btn_features: "Ver Características",
+        stat_cps: "CPS Máx", stat_clients: "Clientes Soportados", stat_precision: "Precisión Timer",
+        feat_overline: "Características", feat_title: "Todo lo que Necesitas para Dominar",
+        feat_desc: "Diseñado con precisión y discreción. Cada característica pensada para mantenerte por delante.",
+        f1_title: "Clicks Humanos", f1_desc: "Tiempos de mantenimiento aleatorios (28-58ms) y micro-jitter crean patrones indistinguibles de clicks reales. El anti-cheat no nota nada.",
+        f2_title: "Timer Precisión 1ms", f2_desc: "Usa el timer de alta resolución de Windows con timeBeginPeriod(1) para un scheduling de clicks preciso al milisegundo.",
+        f3_title: "Modo Sigiloso", f3_desc: "El título de la ventana se transforma en nombres genéricos del sistema como \"Administrador de Dispositivos\" o \"Asistente de Windows Update\". Completamente invisible.",
+        f4_title: "Activación Inteligente", f4_desc: "Mantener para clickear con atajos configurables (F6, Mouse4, Mouse5). Pausa automática al click derecho o cuando Minecraft pierde el foco.",
+        f5_title: "Módulo Reach", f5_desc: "Distancia de alcance configurable de 3.0 a 6.0 bloques con keybind dedicado para ventaja competitiva.",
+        f6_title: "Sistema de Licencia", f6_desc: "Claves de licencia vinculadas al HWID con control de expiración. La activación segura garantiza que solo usuarios autorizados accedan a la herramienta.",
+        f7_title: "Anti-KB", f7_desc: "Reducción de knockback para mantener un control más estable en combate.",
+        f8_title: "Xray", f8_desc: "Detección visual de recursos para ayudar a explorar (beta).",
+        tag_active: "Activo", tag_soon: "Próximamente",
+        how_overline: "Bajo el Capó", how_title: "Diseñado para la Discreción",
+        how_desc: "Llamadas Win32 SendInput de bajo nivel con timing aleatorio que imita el comportamiento humano real.",
+        show_title: "Diferente a los Demás", show_desc: "Yatom no solo clickea rápido — clickea inteligente. Cada parámetro es aleatorizado dentro de rangos humanamente plausibles, haciendo la detección virtualmente imposible.",
+        check1: "Win32 SendInput para inyección de input a nivel kernel", check2: "Retrasos aleatorios entre cada click",
+        check3: "Micro-jitter simula los movimientos naturales de la mano", check4: "Pausa automática cuando Minecraft pierde el foco",
+        check5: "Auto-destrucción para eliminar todo rastro instantáneamente",
+        compat_overline: "Compatibilidad", compat_title: "Compatible con Todos los Clientes",
+        compat_desc: "Detección automática de ventana para todos los clientes Minecraft principales.",
+        price_overline: "Precios", price_title: "Elige tu Plan", price_desc: "Acceso simple y asequible. Prueba por una hora o desbloquea para siempre.",
+        price_note: "Precio bajo por ahora: todavía no hay muchas funciones. El precio aumentará cuando se agreguen más funciones.",
+        plan1_name: "Pase 1 Hora", plan1_desc: "Perfecto para probar o una sesión rápida.", plan1_period: "/ hora",
+        plan2_name: "Acceso de por Vida", plan2_desc: "Un solo pago, acceso permanente.", plan2_period: "pago único",
+        pf_all_features: "Todas las características", pf_all_clients: "Todos los clientes soportados",
+        pf_stealth: "Modo sigiloso incluido", pf_instant: "Activación instantánea",
+        pf_updates: "Actualizaciones gratis de por vida", pf_priority: "Soporte prioritario",
+        plan_btn_try: "Probar", plan_btn_get: "Obtener de por Vida", popular_badge: "POPULAR",
+        plan3_name: "Plugin de Minecraft a Medida",
+        plan3_desc: "Creo cualquier plugin de Minecraft bajo pedido.",
+        plan3_period: "pago único",
+        pf_custom_1: "Plugin configurado para tu servidor",
+        pf_custom_2: "Entrega según tus necesidades",
+        pf_custom_3: "Soporte después de la entrega",
+        plan_btn_custom: "Solicitar",
+        dl_overline: "Empezar", dl_title: "Descargar Yatom", dl_desc: "Un click. Dominación instantánea.",
+        dl_version: "⚡ v3.0 — Última Estable", dl_info: "Windows 10/11 • Ligero • Portátil",
+        dl_btn: "Descargar para Windows", dl_virus: "🔒 Sin virus", dl_noinstall: "🚀 Sin instalación",
+        download_gate: "Pago requerido antes de descargar.",
+        paid_btn: "He pagado",
+        lic_prompt: "¿Ya tienes una clave de licencia?", lic_btn: "Verificar",
+        lic_verifying: "Verificando...", lic_valid: "✓ ¡Clave de licencia validada con éxito!",
+        lic_invalid: "✕ Formato de clave inválido. Esperado: YATOM-XXXX-...",
+        dl_preparing: "Preparando...", dl_ready: "¡Listo!",
+        footer_copy: "© 2026 Yatom. Todos los derechos reservados."
+      },
+      pt: {
+        nav_features: "Funcionalidades", nav_how: "Como Funciona", nav_pricing: "Preços", nav_compat: "Compatibilidade", nav_download: "Baixar",
+        currency_usd_label: "USD ($)", currency_eur_label: "EUR (€)",
+        nav_about: "Sobre",
+        nav_reviews: "Avaliações",
+        about_overline: "Sobre",
+        about_title: "Yaleblan",
+        about_desc: "O criador por trás do Yatom. Eu construo e melhoro a ferramenta para um uso estável, suave e confiável.",
+        about_card1_title: "Por que confiar em mim?",
+        about_card1_desc: "Lanço atualizações regulares, respondo às mensagens e trabalho para tornar a experiência melhor.",
+        about_card1_tag: "Suporte",
+        about_card2_title: "Foco em desempenho",
+        about_card2_desc: "Otimização do timing, controle de estabilidade e ajustes com base no feedback da comunidade.",
+        about_card2_tag: "Qualidade",
+        about_card3_title: "Contato & acesso",
+        about_card3_desc: "Para comprar e acessar rapidamente, use a seção “Download” e siga a etapa de licença.",
+        about_card3_tag: "Rápido",
+        hero_badge: "v3 — Última versão (BETA)", hero_title1: "Yatom", hero_title2: "Indetectável",
+        hero_desc: "Este cheat foi projetado para nunca ser detectado. Esta é uma versão beta.",
+        hero_btn_download: "Baixar Agora", hero_btn_features: "Ver Funcionalidades",
+        stat_cps: "CPS Máx", stat_clients: "Clientes Suportados", stat_precision: "Precisão Timer",
+        feat_overline: "Funcionalidades", feat_title: "Tudo o que Precisa para Dominar",
+        feat_desc: "Projetado com precisão e discrição. Cada funcionalidade pensada para te manter à frente.",
+        f1_title: "Cliques Humanos", f1_desc: "Tempos de pressão aleatórios (28-58ms) e micro-jitter criam padrões indistinguíveis de cliques reais. O anti-cheat não nota nada.",
+        f2_title: "Timer Precisão 1ms", f2_desc: "Usa o timer de alta resolução do Windows com timeBeginPeriod(1) para scheduling de cliques preciso ao milissegundo.",
+        f3_title: "Modo Furtivo", f3_desc: "O título da janela transforma-se em nomes genéricos do sistema como \"Gestor de Dispositivos\" ou \"Assistente Windows Update\". Completamente invisível.",
+        f4_title: "Ativação Inteligente", f4_desc: "Manter para clicar com atalhos configuráveis (F6, Mouse4, Mouse5). Pausa automática ao clique direito ou quando o Minecraft perde o foco.",
+        f5_title: "Módulo Reach", f5_desc: "Distância de alcance configurável de 3.0 a 6.0 blocos com keybind dedicado para vantagem competitiva.",
+        f6_title: "Sistema de Licença", f6_desc: "Chaves de licença vinculadas ao HWID com controle de expiração. A ativação segura garante que apenas utilizadores autorizados acedam à ferramenta.",
+        f7_title: "Anti-KB", f7_desc: "Redução de knockback para manter um controle mais estável em combate.",
+        f8_title: "Xray", f8_desc: "Deteção visual de recursos para ajudar na exploração (beta).",
+        tag_active: "Ativo", tag_soon: "Em Breve",
+        how_overline: "Nos Bastidores", how_title: "Projetado para a Discrição",
+        how_desc: "Chamadas Win32 SendInput de baixo nível com timing aleatório que imita o comportamento humano real.",
+        show_title: "Diferente dos Outros", show_desc: "O Yatom não clica apenas rápido — clica de forma inteligente. Cada parâmetro é aleatorizado dentro de intervalos humanamente plausíveis, tornando a deteção virtualmente impossível.",
+        check1: "Win32 SendInput para injeção de input a nível kernel", check2: "Atrasos aleatórios entre cada clique",
+        check3: "Micro-jitter simula os movimentos naturais da mão", check4: "Pausa automática quando o Minecraft perde o foco",
+        check5: "Autodestruição para remover todos os vestígios instantaneamente",
+        compat_overline: "Compatibilidade", compat_title: "Compatível com Todos os Clientes",
+        compat_desc: "Deteção automática de janela para todos os clientes Minecraft principais.",
+        price_overline: "Preços", price_title: "Escolhe o teu Plano", price_desc: "Acesso simples e acessível. Experimenta por uma hora ou desbloqueia para sempre.",
+        price_note: "Preço baixo por agora: ainda não há muitas funcionalidades. O preço vai aumentar quando forem adicionadas novas funções.",
+        plan1_name: "Passe 1 Hora", plan1_desc: "Perfeito para testar ou uma sessão rápida.", plan1_period: "/ hora",
+        plan2_name: "Acesso Vitalício", plan2_desc: "Um só pagamento, acesso permanente.", plan2_period: "pagamento único",
+        pf_all_features: "Todas as funcionalidades", pf_all_clients: "Todos os clientes suportados",
+        pf_stealth: "Modo furtivo incluído", pf_instant: "Ativação instantânea",
+        pf_updates: "Atualizações grátis vitalícias", pf_priority: "Suporte prioritário",
+        plan_btn_try: "Experimentar", plan_btn_get: "Obter Vitalício", popular_badge: "POPULAR",
+        plan3_name: "Plugin Minecraft Sob Encomenda",
+        plan3_desc: "Eu crio qualquer plugin do Minecraft sob demanda.",
+        plan3_period: "pagamento único",
+        pf_custom_1: "Plugin configurado para o seu servidor",
+        pf_custom_2: "Entrega de acordo com as suas necessidades",
+        pf_custom_3: "Suporte após a entrega",
+        plan_btn_custom: "Solicitar",
+        dl_overline: "Começar", dl_title: "Baixar Yatom", dl_desc: "Um clique. Dominação instantânea.",
+        dl_version: "⚡ v3.0 — Última Estável", dl_info: "Windows 10/11 • Leve • Portátil",
+        dl_btn: "Baixar para Windows", dl_virus: "🔒 Sem vírus", dl_noinstall: "🚀 Sem instalação",
+        download_gate: "Pagamento necessário antes do download.",
+        paid_btn: "Eu paguei",
+        lic_prompt: "Já tens uma chave de licença?", lic_btn: "Verificar",
+        lic_verifying: "A verificar...", lic_valid: "✓ Chave de licença validada com sucesso!",
+        lic_invalid: "✕ Formato de chave inválido. Esperado: YATOM-XXXX-...",
+        dl_preparing: "A preparar...", dl_ready: "Pronto!",
+        footer_copy: "© 2026 Yatom. Todos os direitos reservados."
+      },
+      ar: {
+        nav_features: "الميزات", nav_how: "كيف يعمل", nav_pricing: "الأسعار", nav_compat: "التوافق", nav_download: "تحميل",
+        currency_usd_label: "دولار ($)", currency_eur_label: "يورو (€)",
+        nav_about: "من أنا",
+        nav_reviews: "آراء العملاء",
+        about_overline: "من أنا",
+        about_title: "Yaleblan",
+        about_desc: "أنا منشئ Yatom. أبني وأطور الأداة لتكون ثابتة وسلسة وموثوقة للاستخدام.",
+        about_card1_title: "لماذا تثق بي؟",
+        about_card1_desc: "أنشر تحديثات منتظمة وأرد على الرسائل وأعمل لتحسين التجربة.",
+        about_card1_tag: "الدعم",
+        about_card2_title: "تركيز على الأداء",
+        about_card2_desc: "تحسين التوقيت والتحكم في الثبات وإجراء تعديلات بناءً على ملاحظات المجتمع.",
+        about_card2_tag: "الجودة",
+        about_card3_title: "التواصل والوصول",
+        about_card3_desc: "لشراء والوصول بسرعة، استخدم قسم “تحميل” ثم اتبع خطوة الترخيص.",
+        about_card3_tag: "سريع",
+        hero_badge: "v3 — أحدث إصدار (بيتا)", hero_title1: "Yatom", hero_title2: "غير قابل للكشف",
+        hero_desc: "تم تصميم هذا الكاشف ليكون غير قابل للرصد أبدًا. هذه نسخة تجريبية.",
+        hero_btn_download: "تحميل الآن", hero_btn_features: "اكتشف الميزات",
+        stat_cps: "أقصى CPS", stat_clients: "عملاء مدعومون", stat_precision: "دقة المؤقت",
+        feat_overline: "الميزات", feat_title: "كل ما تحتاجه للسيطرة",
+        feat_desc: "مصمم بدقة وتخفٍّ. كل ميزة مصممة لإبقائك في المقدمة.",
+        f1_title: "نقرات بشرية", f1_desc: "أوقات ضغط عشوائية (28-58 مللي ثانية) واهتزاز دقيق تنشئ أنماطًا لا يمكن تمييزها عن النقرات الحقيقية. مكافح الغش لا يلاحظ شيئًا.",
+        f2_title: "مؤقت بدقة 1 مللي ثانية", f2_desc: "يستخدم مؤقت Windows عالي الدقة مع timeBeginPeriod(1) لجدولة نقرات دقيقة بالمللي ثانية.",
+        f3_title: "الوضع المتخفي", f3_desc: "يتحول عنوان النافذة إلى أسماء نظام عامة مثل \"إدارة الأجهزة\" أو \"مساعد تحديث ويندوز\". غير مرئي تمامًا.",
+        f4_title: "تفعيل ذكي", f4_desc: "اضغط مع الاستمرار للنقر مع اختصارات قابلة للتعديل (F6، Mouse4، Mouse5). إيقاف تلقائي عند النقر بالزر الأيمن أو عند فقدان ماينكرافت للتركيز.",
+        f5_title: "وحدة Reach", f5_desc: "مسافة وصول قابلة للتعديل من 3.0 إلى 6.0 كتل مع مفتاح اختصار مخصص لميزة تنافسية.",
+        f6_title: "نظام الترخيص", f6_desc: "مفاتيح ترخيص مرتبطة بـ HWID مع التحكم في انتهاء الصلاحية. التفعيل الآمن يضمن وصول المستخدمين المصرح لهم فقط.",
+        f7_title: "Anti-KB", f7_desc: "تقليل الـ knockback للتحكم بشكل أكثر ثباتًا أثناء القتال.",
+        f8_title: "Xray", f8_desc: "اكتشاف بصري للموارد لمساعدة الاستكشاف (بيتا).",
+        tag_active: "نشط", tag_soon: "قريبًا",
+        how_overline: "تحت الغطاء", how_title: "مصمم للتخفي",
+        how_desc: "استدعاءات Win32 SendInput منخفضة المستوى مع توقيت عشوائي يحاكي السلوك البشري الحقيقي.",
+        show_title: "مختلف عن الباقي", show_desc: "Yatom لا ينقر بسرعة فقط — ينقر بذكاء. كل معامل يتم عشوائيته ضمن نطاقات بشرية معقولة، مما يجعل الكشف مستحيلًا تقريبًا.",
+        check1: "Win32 SendInput لحقن الإدخال على مستوى النواة", check2: "تأخيرات عشوائية بين كل نقرة",
+        check3: "الاهتزاز الدقيق يحاكي حركات اليد الطبيعية", check4: "إيقاف تلقائي عند فقدان ماينكرافت للتركيز",
+        check5: "تدمير ذاتي لإزالة جميع الآثار فوريًا",
+        compat_overline: "التوافق", compat_title: "متوافق مع جميع العملاء",
+        compat_desc: "كشف تلقائي للنافذة لجميع عملاء ماينكرافت الرئيسيين.",
+        price_overline: "الأسعار", price_title: "اختر خطتك", price_desc: "وصول بسيط وبأسعار معقولة. جرّب لمدة ساعة أو افتح للأبد.",
+        price_note: "سعر منخفض الآن لأن الميزات ما زالت قليلة. سيتم رفع السعر عند إضافة المزيد من الميزات.",
+        plan1_name: "تذكرة ساعة واحدة", plan1_desc: "مثالي للتجربة أو جلسة سريعة.", plan1_period: "/ ساعة",
+        plan2_name: "وصول مدى الحياة", plan2_desc: "دفعة واحدة، وصول دائم.", plan2_period: "دفعة واحدة",
+        pf_all_features: "جميع الميزات", pf_all_clients: "جميع العملاء مدعومون",
+        pf_stealth: "الوضع المتخفي مشمول", pf_instant: "تفعيل فوري",
+        pf_updates: "تحديثات مجانية مدى الحياة", pf_priority: "دعم ذو أولوية",
+        plan_btn_try: "تجربة", plan_btn_get: "احصل مدى الحياة", popular_badge: "الأكثر شعبية",
+        plan3_name: "إضافة Minecraft مخصصة",
+        plan3_desc: "أصنع أي إضافة لـ Minecraft عند الطلب.",
+        plan3_period: "دفعة واحدة",
+        pf_custom_1: "إضافة مهيأة لخادمك",
+        pf_custom_2: "التسليم حسب احتياجاتك",
+        pf_custom_3: "دعم بعد التسليم",
+        plan_btn_custom: "اطلب",
+        dl_overline: "ابدأ", dl_title: "تحميل Yatom", dl_desc: "نقرة واحدة. سيطرة فورية.",
+        dl_version: "⚡ v3.0 — آخر إصدار مستقر", dl_info: "Windows 10/11 • خفيف • محمول",
+        dl_btn: "تحميل لويندوز", dl_virus: "🔒 خالٍ من الفيروسات", dl_noinstall: "🚀 لا حاجة للتثبيت",
+        download_gate: "الدفع مطلوب قبل التنزيل.",
+        paid_btn: "لقد دفعت",
+        lic_prompt: "هل لديك مفتاح ترخيص بالفعل؟", lic_btn: "تحقق",
+        lic_verifying: "جارٍ التحقق...", lic_valid: "✓ تم التحقق من مفتاح الترخيص بنجاح!",
+        lic_invalid: "✕ تنسيق المفتاح غير صالح. المتوقع: YATOM-XXXX-...",
+        dl_preparing: "جارٍ التحضير...", dl_ready: "!جاهز",
+        footer_copy: "© 2026 Yatom. جميع الحقوق محفوظة."
+      }
+    };
+
+    const langMeta = {
+      fr: { flag: "🇫🇷", label: "Français", dir: "ltr" },
+      en: { flag: "🇬🇧", label: "English", dir: "ltr" },
+      it: { flag: "🇮🇹", label: "Italiano", dir: "ltr" },
+      es: { flag: "🇪🇸", label: "Español", dir: "ltr" },
+      pt: { flag: "🇵🇹", label: "Português", dir: "ltr" },
+      ar: { flag: "🇸🇦", label: "العربية", dir: "rtl" }
+    };
+
+    let currentLang = localStorage.getItem('yatom_lang') || 'fr';
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('yatom_lang', lang);
+      const strings = T[lang];
+      if (!strings) return;
+
+      document.documentElement.lang = lang;
+      document.documentElement.dir = langMeta[lang].dir;
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (strings[key]) el.textContent = strings[key];
+        else if (T.en && T.en[key]) el.textContent = T.en[key]; // fallback en cas de traduction manquante
+      });
+
+      document.getElementById('langFlag').textContent = langMeta[lang].flag;
+      document.getElementById('langLabel').textContent = langMeta[lang].label;
+
+      document.querySelectorAll('.lang-option').forEach(opt => {
+        opt.classList.toggle('active', opt.dataset.lang === lang);
+      });
+
+      document.title = `⚡ Yatom — ${strings.hero_title2}`;
+    }
+
+    // Init language on load
+    setLang(currentLang);
+
+    // ─── CURRENCY TOGGLE ───
+    // Convertisseur USD/EUR basé sur un taux indicatif (modifiable si besoin).
+    const FX_EUR_TO_USD = 1.08; // 1 EUR -> 1.08 USD
+    const currencyStorageKey = 'yatom_currency';
+    let currentCurrency = localStorage.getItem(currencyStorageKey) || 'usd';
+
+    function formatMoney(amount) {
+      const v = Math.round(amount * 100) / 100;
+      return v.toFixed(2).replace(/\.00$/, '');
+    }
+
+    function updatePrices() {
+      const symbol = currentCurrency === 'eur' ? '€' : '$';
+      document.querySelectorAll('.money-amount').forEach(el => {
+        const usd = el.dataset.amountUsd ? parseFloat(el.dataset.amountUsd) : NaN;
+        const eur = el.dataset.amountEur ? parseFloat(el.dataset.amountEur) : NaN;
+
+        const priceBox = el.closest('.price');
+
+        let primaryValue = 0;
+        let secondaryValue = 0;
+
+        // Primary: shown in selected currency
+        // Secondary: shown in the other currency (~ equivalent)
+        if (currentCurrency === 'eur') {
+          if (!Number.isNaN(eur)) primaryValue = eur;
+          else if (!Number.isNaN(usd)) primaryValue = usd / FX_EUR_TO_USD;
+
+          if (!Number.isNaN(usd)) secondaryValue = usd;
+          else if (!Number.isNaN(eur)) secondaryValue = eur * FX_EUR_TO_USD;
+        } else {
+          if (!Number.isNaN(usd)) primaryValue = usd;
+          else if (!Number.isNaN(eur)) primaryValue = eur * FX_EUR_TO_USD;
+
+          if (!Number.isNaN(eur)) secondaryValue = eur;
+          else if (!Number.isNaN(usd)) secondaryValue = usd / FX_EUR_TO_USD;
+        }
+
+        el.textContent = formatMoney(primaryValue);
+
+        if (priceBox) {
+          const symEl = priceBox.querySelector('.currency');
+          if (symEl) symEl.textContent = symbol;
+
+          const secCurrencyEl = priceBox.querySelector('.money-secondary-currency');
+          const secAmountEl = priceBox.querySelector('.money-secondary-amount');
+          if (secCurrencyEl && secAmountEl) {
+            if (currentCurrency === 'eur') {
+              secCurrencyEl.textContent = '$';
+              secAmountEl.textContent = formatMoney(secondaryValue);
+            } else {
+              secCurrencyEl.textContent = '€';
+              secAmountEl.textContent = formatMoney(secondaryValue);
+            }
+          }
+        }
+      });
+    }
+
+    function setCurrency(curr) {
+      currentCurrency = curr === 'eur' ? 'eur' : 'usd';
+      localStorage.setItem(currencyStorageKey, currentCurrency);
+
+      document.querySelectorAll('.currency-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.currency === currentCurrency);
+      });
+
+      updatePrices();
+    }
+
+    document.querySelectorAll('.currency-btn').forEach(btn => {
+      btn.addEventListener('click', () => setCurrency(btn.dataset.currency));
+    });
+
+    // Init currency on load
+    setCurrency(currentCurrency);
+
+    // ─── LANG DROPDOWN ───
+    const langBtn = document.getElementById('langBtn');
+    const langDropdown = document.getElementById('langDropdown');
+
+    langBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      langBtn.classList.toggle('open');
+      langDropdown.classList.toggle('open');
+    });
+
+    document.querySelectorAll('.lang-option').forEach(opt => {
+      opt.addEventListener('click', () => {
+        setLang(opt.dataset.lang);
+        langBtn.classList.remove('open');
+        langDropdown.classList.remove('open');
+      });
+    });
+
+    document.addEventListener('click', () => {
+      langBtn.classList.remove('open');
+      langDropdown.classList.remove('open');
+    });
+
+    // ─── THREE.JS 3D BACKGROUND ───
+    (function initThree() {
+      const canvas = document.getElementById('three-canvas');
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.z = 30;
+
+      const particleCount = 300;
+      const positions = new Float32Array(particleCount * 3);
+      const velocities = [];
+
+      for (let i = 0; i < particleCount; i++) {
+        positions[i * 3] = (Math.random() - 0.5) * 80;
+        positions[i * 3 + 1] = (Math.random() - 0.5) * 80;
+        positions[i * 3 + 2] = (Math.random() - 0.5) * 40;
+        velocities.push({ x: (Math.random() - 0.5) * 0.02, y: (Math.random() - 0.5) * 0.02, z: (Math.random() - 0.5) * 0.01 });
+      }
+
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      const material = new THREE.PointsMaterial({ size: 0.15, color: 0x7c3aed, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending });
+      const particles = new THREE.Points(geometry, material);
+      scene.add(particles);
+
+      const cubes = [];
+      const cubeMat = new THREE.MeshBasicMaterial({ color: 0x7c3aed, wireframe: true, transparent: true, opacity: 0.12 });
+      for (let i = 0; i < 8; i++) {
+        const size = Math.random() * 2 + 0.5;
+        const cube = new THREE.Mesh(new THREE.BoxGeometry(size, size, size), cubeMat.clone());
+        cube.position.set((Math.random() - 0.5) * 50, (Math.random() - 0.5) * 50, (Math.random() - 0.5) * 20);
+        cube.userData = { rotSpeed: { x: (Math.random() - 0.5) * 0.01, y: (Math.random() - 0.5) * 0.01 }, floatSpeed: Math.random() * 0.005 + 0.002, floatOffset: Math.random() * Math.PI * 2 };
+        scene.add(cube);
+        cubes.push(cube);
+      }
+
+      const lineMat = new THREE.LineBasicMaterial({ color: 0x7c3aed, transparent: true, opacity: 0.04 });
+      const lineGeom = new THREE.BufferGeometry();
+      const linePositions = new Float32Array(200 * 6);
+      lineGeom.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
+      const lines = new THREE.LineSegments(lineGeom, lineMat);
+      scene.add(lines);
+
+      let mouseX = 0, mouseY = 0;
+      document.addEventListener('mousemove', (e) => {
+        mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+        mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+      });
+
+      let time = 0;
+      function animate() {
+        requestAnimationFrame(animate);
+        time += 0.01;
+        const posArr = particles.geometry.attributes.position.array;
+        for (let i = 0; i < particleCount; i++) {
+          posArr[i*3] += velocities[i].x; posArr[i*3+1] += velocities[i].y; posArr[i*3+2] += velocities[i].z;
+          if (Math.abs(posArr[i*3]) > 40) velocities[i].x *= -1;
+          if (Math.abs(posArr[i*3+1]) > 40) velocities[i].y *= -1;
+          if (Math.abs(posArr[i*3+2]) > 20) velocities[i].z *= -1;
+        }
+        particles.geometry.attributes.position.needsUpdate = true;
+
+        let lineIdx = 0;
+        const lp = lines.geometry.attributes.position.array;
+        for (let i = 0; i < particleCount && lineIdx < 200; i++) {
+          for (let j = i + 1; j < particleCount && lineIdx < 200; j++) {
+            const dx = posArr[i*3]-posArr[j*3], dy = posArr[i*3+1]-posArr[j*3+1], dz = posArr[i*3+2]-posArr[j*3+2];
+            if (Math.sqrt(dx*dx+dy*dy+dz*dz) < 8) {
+              lp[lineIdx*6]=posArr[i*3]; lp[lineIdx*6+1]=posArr[i*3+1]; lp[lineIdx*6+2]=posArr[i*3+2];
+              lp[lineIdx*6+3]=posArr[j*3]; lp[lineIdx*6+4]=posArr[j*3+1]; lp[lineIdx*6+5]=posArr[j*3+2];
+              lineIdx++;
+            }
+          }
+        }
+        for (let i = lineIdx; i < 200; i++) lp[i*6]=lp[i*6+1]=lp[i*6+2]=lp[i*6+3]=lp[i*6+4]=lp[i*6+5]=0;
+        lines.geometry.attributes.position.needsUpdate = true;
+
+        cubes.forEach(cube => {
+          cube.rotation.x += cube.userData.rotSpeed.x; cube.rotation.y += cube.userData.rotSpeed.y;
+          cube.position.y += Math.sin(time + cube.userData.floatOffset) * cube.userData.floatSpeed;
+        });
+        camera.position.x += (mouseX * 3 - camera.position.x) * 0.02;
+        camera.position.y += (-mouseY * 3 - camera.position.y) * 0.02;
+        camera.lookAt(0, 0, 0);
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    })();
+
+    // ─── GSAP ───
+    gsap.registerPlugin(ScrollTrigger);
+
+    const heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    heroTl
+      .to('.hero-badge', { opacity: 1, y: 0, duration: 0.8, delay: 0.3 })
+      .to('.hero h1', { opacity: 1, y: 0, duration: 1 }, '-=0.5')
+      .to('.hero-description', { opacity: 1, y: 0, duration: 0.8 }, '-=0.6')
+      .to('.hero-buttons', { opacity: 1, y: 0, duration: 0.8 }, '-=0.5')
+      .to('.hero-stats', { opacity: 1, y: 0, duration: 0.8 }, '-=0.4');
+
+    gsap.utils.toArray('.reveal').forEach((el, i) => {
+      gsap.to(el, {
+        scrollTrigger: { trigger: el, start: 'top 85%', end: 'top 65%', toggleActions: 'play none none none' },
+        opacity: 1, y: 0, duration: 0.8, delay: i % 3 * 0.1, ease: 'power3.out'
+      });
+    });
+
+    gsap.utils.toArray('.feature-card').forEach((card, i) => {
+      gsap.to(card, { scrollTrigger: { trigger: card, start: 'top 85%' }, opacity: 1, y: 0, duration: 0.6, delay: i * 0.1, ease: 'power2.out' });
+    });
+
+    gsap.utils.toArray('.compat-item').forEach((item, i) => {
+      gsap.to(item, { scrollTrigger: { trigger: item, start: 'top 90%' }, opacity: 1, y: 0, duration: 0.5, delay: i * 0.05, ease: 'power2.out' });
+    });
+
+    gsap.utils.toArray('.pricing-card').forEach((card, i) => {
+      gsap.to(card, { scrollTrigger: { trigger: card, start: 'top 85%' }, opacity: 1, y: 0, duration: 0.7, delay: i * 0.15, ease: 'power2.out' });
+    });
+
+    // ─── COUNTERS ───
+    const counters = document.querySelectorAll('.counter');
+    const counterObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const target = parseInt(el.dataset.target);
+          let current = 0;
+          const step = target / 40;
+          const interval = setInterval(() => {
+            current += step;
+            if (current >= target) { current = target; clearInterval(interval); }
+            el.textContent = Math.round(current);
+          }, 30);
+          counterObserver.unobserve(el);
+        }
+      });
+    }, { threshold: 0.5 });
+    counters.forEach(c => counterObserver.observe(c));
+
+    // ─── NAV SCROLL ───
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 50));
+
+    // ─── MOBILE MENU ───
+    const mobileToggle = document.getElementById('mobileToggle');
+    const navLinks = document.getElementById('navLinks');
+    mobileToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('active');
+      mobileToggle.textContent = navLinks.classList.contains('active') ? '✕' : '☰';
+    });
+    navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { navLinks.classList.remove('active'); mobileToggle.textContent = '☰'; }));
+
+    // ─── CUSTOM CURSOR ───
+    const cursor = document.getElementById('cursor');
+    let cursorVisible = false;
+    document.addEventListener('mousemove', (e) => {
+      if (!cursorVisible) { cursor.style.opacity = '1'; cursorVisible = true; }
+      cursor.style.left = e.clientX - 10 + 'px'; cursor.style.top = e.clientY - 10 + 'px';
+    });
+    document.addEventListener('mousedown', () => cursor.classList.add('active'));
+    document.addEventListener('mouseup', () => cursor.classList.remove('active'));
+    document.addEventListener('mouseleave', () => { cursor.style.opacity = '0'; cursorVisible = false; });
+    document.querySelectorAll('a, button, .feature-card, .compat-item, .pricing-card').forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('active'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('active'));
+    });
+
+    // ─── LICENSE ───
+    const licenseInput = document.getElementById('licenseInput');
+    const licenseBtn = document.getElementById('licenseBtn');
+    const licenseStatus = document.getElementById('licenseStatus');
+
+    licenseBtn.addEventListener('click', () => {
+      const key = licenseInput.value.trim();
+      if (!key) return;
+      const s = T[currentLang];
+      licenseBtn.textContent = s.lic_verifying;
+      licenseBtn.disabled = true;
+      setTimeout(() => {
+        if (key.startsWith('YATOM-') && key.length > 20) {
+          licenseStatus.className = 'license-status valid';
+          licenseStatus.textContent = s.lic_valid;
+        } else {
+          licenseStatus.className = 'license-status invalid';
+          licenseStatus.textContent = s.lic_invalid;
+        }
+        licenseBtn.textContent = s.lic_btn;
+        licenseBtn.disabled = false;
+      }, 1200);
+    });
+    licenseInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') licenseBtn.click(); });
+
+    // ─── DOWNLOAD & LICENSES ───
+    const downloadBtn = document.getElementById('downloadBtn');
+    const downloadGate = document.getElementById('downloadGate');
+    const downloadStatusMsg = document.getElementById('downloadStatusMsg');
+    const licenseListDisplay = document.getElementById('licenseListDisplay');
+
+    // Purchase handler logic
+    async function handlePurchase(plan) {
+      try {
+        const res = await fetch('/api/payment/create-checkout-session', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ plan })
+        });
+        const data = await res.json();
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          alert('Erreur: ' + data.error);
+        }
+      } catch (err) {
+        alert('Erreur réseau.');
+      }
+    }
+
+    // Check payment query param logic
+    window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('payment') === 'success') {
+        const plan = urlParams.get('plan');
+        if (plan === 'plugin') {
+          alert("Paiement réussi ! 🎉\n\nMerci d'ouvrir un ticket sur notre Discord (lien en haut) OU d'envoyer un mail à Yatomexe@gmail.com en détaillant ÉNORMÉMENT ce que vous souhaitez pour votre plugin sur mesure.");
+        } else {
+          alert("Paiement réussi ! 🎉\n\nVeuillez rejoindre notre Discord (lien dans Support) et ouvrir un ticket avec votre numéro/reçu Stripe pour réclamer votre Licence et télécharger le logiciel.");
+        }
+        // Clean url
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    });
+
+    async function handleSupportSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('supportEmail').value;
+      const message = document.getElementById('supportMessage').value;
+      const btn = document.getElementById('supportBtn');
+      const msgDiv = document.getElementById('supportMsg');
+
+      btn.disabled = true;
+      btn.textContent = currentLang === 'en' ? 'Sending...' : 'Envoi en cours...';
+      msgDiv.textContent = '';
+      msgDiv.className = 'auth-msg';
+
+      try {
+        const res = await fetch('/api/support/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, message })
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          msgDiv.textContent = currentLang === 'en' ? 'Message sent successfully!' : 'Message envoyé avec succès !';
+          msgDiv.className = 'auth-msg success';
+          document.getElementById('supportForm').reset();
+          setTimeout(() => { msgDiv.textContent = ''; }, 5000);
+        } else {
+          msgDiv.textContent = data.error || (currentLang === 'en' ? 'An error occurred.' : 'Une erreur s\'est produite.');
+          msgDiv.className = 'auth-msg error';
+        }
+      } catch (err) {
+        msgDiv.textContent = currentLang === 'en' ? 'Network error.' : 'Erreur réseau.';
+        msgDiv.className = 'auth-msg error';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = currentLang === 'en' ? 'Send Message' : 'Envoyer le message';
+      }
+    }
+
+
+    // ─── SMOOTH SCROLL ───
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const t = document.querySelector(this.getAttribute('href'));
+        if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    // ─── TILT ───
+    document.querySelectorAll('.feature-card, .download-card, .pricing-card').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        card.style.transform = `translateY(-5px) perspective(1000px) rotateX(${-y * 5}deg) rotateY(${x * 5}deg)`;
+      });
+      card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+    });
+  </script>
+
+</body>
+</html>
