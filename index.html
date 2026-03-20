@@ -1417,6 +1417,76 @@
         <button class="price-btn btn-glow" onclick="handlePurchase('lifetime')" data-i18n="plan_btn_get" style="margin-bottom: 0.75rem;">Obtenir à Vie (Carte)</button>
         <button class="price-btn btn-outline" onclick="handlePayPal()" data-i18n="btn_paypal" style="background: rgba(0, 112, 186, 0.1); border-color: rgba(0, 112, 186, 0.5); color: #4db8ff;">Payer via PayPal</button>
       </div>
+      
+      <!-- Connection Booster -->
+      <div class="pricing-card reveal">
+        <div class="pricing-icon">🌐</div>
+        <h3 data-i18n="plan_conn_name">Booster Connexion</h3>
+        <p class="pricing-desc" data-i18n="plan_conn_desc">Boost ton débit et réduit ta latence.</p>
+        <div class="price">
+          <span class="currency" aria-hidden="true">€</span><span class="money-amount" data-amount-eur="5">5</span>
+          <div class="price-secondary">
+            <span class="price-secondary-prefix" aria-hidden="true">~</span>
+            <span class="money-secondary-currency" aria-hidden="true">$</span><span class="money-secondary-amount">5.40</span>
+          </div>
+        </div>
+        <div class="price-period" data-i18n="plan2_period">paiement unique</div>
+        <ul class="pricing-features">
+          <li><span class="pf-icon">✓</span> <span>Optimisation TCP/IP</span></li>
+          <li><span class="pf-icon">✓</span> <span>Réduction du Ping</span></li>
+          <li><span class="pf-icon">✓</span> <span>DNS Ultra-rapides</span></li>
+          <li><span class="pf-icon">✓</span> <span>Support 24/7</span></li>
+        </ul>
+        <button class="price-btn btn-outline" onclick="handlePurchase('conn_boost')" data-i18n="plan_btn_get" style="margin-bottom: 0.75rem;">Acheter (Carte)</button>
+        <button class="price-btn btn-outline" onclick="handlePayPal()" data-i18n="btn_paypal" style="background: rgba(0, 112, 186, 0.1); border-color: rgba(0, 112, 186, 0.5); color: #4db8ff;">Payer via PayPal</button>
+      </div>
+
+      <!-- PC Booster -->
+      <div class="pricing-card reveal">
+        <div class="pricing-icon">🚀</div>
+        <h3 data-i18n="plan_pc_name">Maximum PC Boost</h3>
+        <p class="pricing-desc" data-i18n="plan_pc_desc">Optimise Windows pour le gaming.</p>
+        <div class="price">
+          <span class="currency" aria-hidden="true">€</span><span class="money-amount" data-amount-eur="10">10</span>
+          <div class="price-secondary">
+            <span class="price-secondary-prefix" aria-hidden="true">~</span>
+            <span class="money-secondary-currency" aria-hidden="true">$</span><span class="money-secondary-amount">10.80</span>
+          </div>
+        </div>
+        <div class="price-period" data-i18n="plan2_period">paiement unique</div>
+        <ul class="pricing-features">
+          <li><span class="pf-icon">✓</span> <span>Nettoyage Services Windows</span></li>
+          <li><span class="pf-icon">✓</span> <span>Optimisation RAM & CPU</span></li>
+          <li><span class="pf-icon">✓</span> <span>Gain de FPS garanti</span></li>
+          <li><span class="pf-icon">✓</span> <span>Support 24/7</span></li>
+        </ul>
+        <button class="price-btn btn-outline" onclick="handlePurchase('pc_boost')" data-i18n="plan_btn_get" style="margin-bottom: 0.75rem;">Acheter (Carte)</button>
+        <button class="price-btn btn-outline" onclick="handlePayPal()" data-i18n="btn_paypal" style="background: rgba(0, 112, 186, 0.1); border-color: rgba(0, 112, 186, 0.5); color: #4db8ff;">Payer via PayPal</button>
+      </div>
+
+      <!-- Ultimate Booster Pack -->
+      <div class="pricing-card featured reveal">
+        <div class="popular-badge">BEST VALUE</div>
+        <div class="pricing-icon">💎</div>
+        <h3 data-i18n="plan_ultimate_name">Ultimate Boost Pack</h3>
+        <p class="pricing-desc" data-i18n="plan_ultimate_desc">Le combo parfait pour dominer.</p>
+        <div class="price">
+          <span class="currency" aria-hidden="true">€</span><span class="money-amount" data-amount-eur="13">13</span>
+          <div class="price-secondary">
+            <span class="price-secondary-prefix" aria-hidden="true">~</span>
+            <span class="money-secondary-currency" aria-hidden="true">$</span><span class="money-secondary-amount">14.00</span>
+          </div>
+        </div>
+        <div class="price-period" data-i18n="plan2_period">paiement unique</div>
+        <ul class="pricing-features">
+          <li><span class="pf-icon">✓</span> <span>Booster Connexion Inclus</span></li>
+          <li><span class="pf-icon">✓</span> <span>Maximum PC Boost Inclus</span></li>
+          <li><span class="pf-icon">✓</span> <span>Assistance VIP Installation</span></li>
+          <li><span class="pf-icon">✓</span> <span>Mises à jour prioritaires</span></li>
+        </ul>
+        <button class="price-btn btn-glow" onclick="handlePurchase('ultimate_pack')" data-i18n="plan_btn_get" style="margin-bottom: 0.75rem;">Acheter le Pack (Carte)</button>
+        <button class="price-btn btn-outline" onclick="handlePayPal()" data-i18n="btn_paypal" style="background: rgba(0, 112, 186, 0.1); border-color: rgba(0, 112, 186, 0.5); color: #4db8ff;">Payer via PayPal</button>
+      </div>
 
       <div class="pricing-card reveal">
         <div class="pricing-icon">🧩</div>
@@ -1559,6 +1629,12 @@
         pf_custom_3: "Support après la livraison",
         plan_btn_custom: "Commander (Carte)",
         btn_paypal_custom: "Commander via PayPal",
+        plan_conn_name: "Booster Connexion",
+        plan_conn_desc: "Boost ton débit et réduit ta latence pour un avantage compétitif.",
+        plan_pc_name: "Maximum PC Boost",
+        plan_pc_desc: "Optimise Windows, les services et la ram pour gagner en FPS.",
+        plan_ultimate_name: "Ultimate Boost Pack",
+        plan_ultimate_desc: "Le combo parfait (Connexion + PC Boost) au meilleur prix.",
         dl_overline: "Commencer", dl_title: "Télécharger Yatom", dl_desc: "Un clic. Domination instantanée.",
         dl_version: "⚡ v3.0 — Dernière Stable", dl_info: "Windows 10/11 • Léger • Portable",
         dl_btn: "Télécharger pour Windows", dl_virus: "🔒 Sans virus", dl_noinstall: "🚀 Aucune installation requise",
@@ -1657,6 +1733,12 @@
         pf_custom_3: "Support after delivery",
         plan_btn_custom: "Order (Card)",
         btn_paypal_custom: "Order with PayPal",
+        plan_conn_name: "Connection Booster",
+        plan_conn_desc: "Boost your throughput and reduce latency for a competitive edge.",
+        plan_pc_name: "Maximum PC Boost",
+        plan_pc_desc: "Optimize Windows, services, and RAM to gain FPS and stability.",
+        plan_ultimate_name: "Ultimate Boost Pack",
+        plan_ultimate_desc: "The perfect combo (Connection + PC Boost) at the best price.",
         dl_overline: "Get Started", dl_title: "Download Yatom", dl_desc: "One click. Instant domination.",
         dl_version: "⚡ v3.0 — Latest Stable", dl_info: "Windows 10/11 • Lightweight • Portable",
         dl_btn: "Download for Windows", dl_virus: "🔒 Virus-free", dl_noinstall: "🚀 No install needed",
@@ -1736,6 +1818,12 @@
         pf_custom_3: "Supporto dopo la consegna",
         plan_btn_custom: "Ordina (Carta)",
         btn_paypal_custom: "Ordina con PayPal",
+        plan_conn_name: "Booster Connessione",
+        plan_conn_desc: "Migliora la tua velocità e riduci la latenza per un vantaggio competitivo.",
+        plan_pc_name: "Maximum PC Boost",
+        plan_pc_desc: "Ottimizza Windows, i servizi e la RAM per guadagnare FPS.",
+        plan_ultimate_name: "Ultimate Boost Pack",
+        plan_ultimate_desc: "La combinazione perfetta (Connessione + PC Boost) al miglior prezzo.",
         dl_overline: "Inizia", dl_title: "Scarica Yatom", dl_desc: "Un click. Dominio istantaneo.",
         dl_version: "⚡ v3.0 — Ultima Stabile", dl_info: "Windows 10/11 • Leggero • Portatile",
         dl_btn: "Scarica per Windows", dl_virus: "🔒 Senza virus", dl_noinstall: "🚀 Nessuna installazione",
@@ -1808,6 +1896,12 @@
         pf_custom_3: "Soporte después de la entrega",
         plan_btn_custom: "Pedir (Tarjeta)",
         btn_paypal_custom: "Pedir con PayPal",
+        plan_conn_name: "Booster de Conexión",
+        plan_conn_desc: "Mejora tu velocidad y reduce la latencia para una ventaja competitiva.",
+        plan_pc_name: "Máximo PC Boost",
+        plan_pc_desc: "Optimiza Windows, los servicios y la RAM para ganar FPS.",
+        plan_ultimate_name: "Pack Ultimate Boost",
+        plan_ultimate_desc: "El combo perfecto (Conexión + PC Boost) al mejor precio.",
         dl_overline: "Empezar", dl_title: "Descargar Yatom", dl_desc: "Un click. Dominación instantánea.",
         dl_version: "⚡ v3.0 — Última Estable", dl_info: "Windows 10/11 • Ligero • Portátil",
         dl_btn: "Descargar para Windows", dl_virus: "🔒 Sin virus", dl_noinstall: "🚀 Sin instalación",
@@ -1878,6 +1972,12 @@
         pf_custom_3: "Suporte após a entrega",
         plan_btn_custom: "Pedir (Cartão)",
         btn_paypal_custom: "Pedir com PayPal",
+        plan_conn_name: "Booster de Conexão",
+        plan_conn_desc: "Aumente a sua velocidade e reduza a latência para uma vantagem competitiva.",
+        plan_pc_name: "Máximo PC Boost",
+        plan_pc_desc: "Otimize o Windows, serviços e RAM para ganhar FPS.",
+        plan_ultimate_name: "Pack Ultimate Boost",
+        plan_ultimate_desc: "O combo perfeito (Conexão + PC Boost) ao melhor preço.",
         dl_overline: "Começar", dl_title: "Baixar Yatom", dl_desc: "Um clique. Dominação instantânea.",
         dl_version: "⚡ v3.0 — Última Estável", dl_info: "Windows 10/11 • Leve • Portátil",
         dl_btn: "Baixar para Windows", dl_virus: "🔒 Sem vírus", dl_noinstall: "🚀 Sem instalação",
@@ -1947,6 +2047,12 @@
         pf_custom_3: "دعم بعد التسليم",
         plan_btn_custom: "اطلب (بطاقة)",
         btn_paypal_custom: "اطلب عبر PayPal",
+        plan_conn_name: "برنامج تقوية الاتصال",
+        plan_conn_desc: "عزز سرعة اتصالك وقلل التأخير للحصول على ميزة تنافسية.",
+        plan_pc_name: "أقصى تعزيز للكمبيوتر",
+        plan_pc_desc: "تحسين ويندوز والخدمات وذاكرة الوصول العشوائي لزيادة الإطارات (FPS).",
+        plan_ultimate_name: "حزمة التعزيز القصوى",
+        plan_ultimate_desc: "المزيج المثالي (الاتصال + تعزيز الكمبيوتر) بأفضل سعر.",
         dl_overline: "ابدأ", dl_title: "تحميل Yatom", dl_desc: "نقرة واحدة. سيطرة فورية.",
         dl_version: "⚡ v3.0 — آخر إصدار مستقر", dl_info: "Windows 10/11 • خفيف • محمول",
         dl_btn: "تحميل لويندوز", dl_virus: "🔒 خالٍ من الفيروسات", dl_noinstall: "🚀 لا حاجة للتثبيت",
